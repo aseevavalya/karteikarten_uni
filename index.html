@@ -171,7 +171,23 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
   .shell{padding:18px 14px 34px}.topbar{align-items:flex-start;flex-direction:column}.tabs{width:100%;justify-content:space-between}
   .stat-grid{grid-template-columns:1fr 1fr}.main-card{padding:23px}.term{font-size:34px}.card-tools{grid-template-columns:1fr}
 }
+
+.sync-box{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sync-status{padding:9px 12px;border-radius:15px;font-size:12px;font-weight:800;color:var(--muted);white-space:nowrap}
+.sync-status.online{color:var(--accent2)}
+.sync-status.busy{color:var(--warn)}
+.sync-status.error{color:var(--danger)}
+.sync-btn{border:1px solid rgba(255,255,255,.88);padding:10px 13px;border-radius:15px;font-weight:800;box-shadow:7px 7px 15px rgba(170,176,172,.55),-7px -7px 15px #fff,inset 1px 1px 1px #fff}
+.auth-modal{position:fixed;inset:0;background:rgba(45,43,69,.24);display:none;place-items:center;padding:22px;z-index:60;backdrop-filter:blur(5px)}
+.auth-modal.show{display:grid}
+.auth-panel{width:min(430px,100%);padding:25px}
+.auth-panel h2{margin:0 0 7px}.auth-panel p{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.45}
+.auth-form{display:grid;gap:12px}.auth-actions{display:flex;gap:10px;margin-top:4px}.auth-actions button{flex:1;border:0;padding:12px;border-radius:16px;font-weight:850}
+.auth-error{min-height:18px;color:var(--danger);font-size:12px;margin-top:8px}
+@media(max-width:620px){.sync-box{width:100%;justify-content:space-between}.sync-status{font-size:11px}.sync-btn{padding:9px 11px}}
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="shell">
@@ -185,6 +201,10 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
       <button class="tab" data-view="library">Карточки</button>
       <button class="tab" data-view="add">Добавить</button>
     </nav>
+    <div class="sync-box">
+      <div id="syncStatus" class="sync-status neo-inset">Облако: не подключено</div>
+      <button id="syncBtn" class="sync-btn neo" type="button">Войти</button>
+    </div>
   </div>
 
   <section id="reviewView" class="view active">
@@ -325,6 +345,21 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
     <div id="historyList" class="history-list"></div>
   </div>
 </div>
+<div id="authModal" class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="auth-panel neo">
+    <h2 id="authTitle">Синхронизация</h2>
+    <p>Войди тем пользователем Supabase, которого ты создала. Пароль хранится в сессии Supabase и не записывается в карточки.</p>
+    <form id="authForm" class="auth-form">
+      <input id="authEmail" class="neo-inset" type="email" autocomplete="username" placeholder="Email" required>
+      <input id="authPassword" class="neo-inset" type="password" autocomplete="current-password" placeholder="Пароль" required>
+      <div class="auth-actions">
+        <button class="reveal neo" type="submit">Войти</button>
+        <button id="authCancel" class="secondary neo" type="button">Отмена</button>
+      </div>
+      <div id="authError" class="auth-error"></div>
+    </form>
+  </div>
+</div>
 <div id="toast" class="toast neo">Сохранено</div>
 
 <script>
@@ -343,24 +378,119 @@ const defaults = SOURCE_CARDS.map((c,i)=>({
   reviews:0, correct:0, lapses:0, streak:0, intervalDays:0, dueAt:0, lastReviewed:0
 }));
 
+const SUPABASE_URL = "https://tuhnikmptrwpglnkatjm.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_F3vxYVb1G8YD9KhMl_hDiQ_Za0U0jxg";
+const LOCAL_CHANGED_KEY = STORAGE_KEY + "_local_changed_at";
+const CLOUD_SYNCED_KEY = STORAGE_KEY + "_cloud_synced_at";
+const supabaseClient = (window.supabase && window.supabase.createClient)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  : null;
+
 let state = loadState();
 let current = null;
 let editReturnView="library";
+let cloudUser=null;
+let cloudSaveTimer=null;
+let cloudWriteInProgress=false;
 
-function loadState(){
-  try{
-    const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
-    if(!saved) return {cards:defaults, sessions:{}, deletedIds:[], history:[]};
-    (saved.cards||[]).forEach(sanitizeCard);
-    (saved.history||[]).forEach(sanitizeCard);
-    const deletedIds=Array.isArray(saved.deletedIds)?saved.deletedIds:[];
-    const byId=new Map((saved.cards||[]).map(c=>[c.id,c]));
-    const merged=defaults.filter(d=>!deletedIds.includes(d.id)).map(d=>({...d,...(byId.get(d.id)||{})}));
-    const custom=(saved.cards||[]).filter(c=>c.custom && !merged.some(m=>m.id===c.id));
-    return {cards:[...merged,...custom],sessions:saved.sessions||{},deletedIds,history:Array.isArray(saved.history)?saved.history:[]};
-  }catch(e){ return {cards:defaults,sessions:{},deletedIds:[],history:[]}; }
+function emptyState(){ return {cards:defaults,sessions:{},deletedIds:[],history:[]}; }
+function normalizeState(saved){
+  if(!saved || !Array.isArray(saved.cards)) return emptyState();
+  (saved.cards||[]).forEach(sanitizeCard);
+  (saved.history||[]).forEach(sanitizeCard);
+  const deletedIds=Array.isArray(saved.deletedIds)?saved.deletedIds:[];
+  const byId=new Map((saved.cards||[]).map(c=>[c.id,c]));
+  const merged=defaults.filter(d=>!deletedIds.includes(d.id)).map(d=>({...d,...(byId.get(d.id)||{})}));
+  const custom=(saved.cards||[]).filter(c=>c.custom && !merged.some(m=>m.id===c.id));
+  return {cards:[...merged,...custom],sessions:saved.sessions||{},deletedIds,history:Array.isArray(saved.history)?saved.history:[]};
 }
-function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); updateStats(); renderDailyCards(); renderHistorySummary(); }
+function loadState(){
+  try{ return normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)||"null")); }
+  catch(e){ return emptyState(); }
+}
+function safeLocalSave(markChanged=true){
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    if(markChanged) localStorage.setItem(LOCAL_CHANGED_KEY,String(Date.now()));
+  }catch(e){ console.warn("Local save failed",e); }
+}
+function save(){
+  safeLocalSave(true);
+  updateStats(); renderDailyCards(); renderHistorySummary();
+  scheduleCloudSave();
+}
+function setSyncStatus(text,kind=""){
+  const el=document.getElementById("syncStatus"); if(!el)return;
+  el.textContent=text; el.className="sync-status neo-inset"+(kind?" "+kind:"");
+}
+function scheduleCloudSave(){
+  if(!cloudUser || !supabaseClient)return;
+  clearTimeout(cloudSaveTimer);
+  setSyncStatus("Облако: сохраняю…","busy");
+  cloudSaveTimer=setTimeout(()=>pushStateToCloud(),650);
+}
+async function pushStateToCloud(){
+  if(!cloudUser || !supabaseClient || cloudWriteInProgress)return;
+  cloudWriteInProgress=true;
+  try{
+    const stamp=new Date().toISOString();
+    const {error}=await supabaseClient.from("study_state").upsert({
+      user_id:cloudUser.id, data:state, updated_at:stamp
+    },{onConflict:"user_id"});
+    if(error)throw error;
+    const ts=Date.parse(stamp);
+    try{localStorage.setItem(CLOUD_SYNCED_KEY,String(ts));localStorage.setItem(LOCAL_CHANGED_KEY,String(ts));}catch(_){}
+    setSyncStatus("Облако: синхронизировано","online");
+  }catch(e){
+    console.error(e); setSyncStatus("Ошибка синхронизации","error");
+  }finally{cloudWriteInProgress=false;}
+}
+function refreshAllViews(){
+  updateStats(); updateTopicFilters(); renderDailyCards(); renderHistorySummary();
+  if(document.getElementById("libraryView").classList.contains("active"))renderLibrary();
+  pickCard();
+}
+async function initialCloudSync(){
+  if(!cloudUser || !supabaseClient)return;
+  setSyncStatus("Облако: проверяю…","busy");
+  const {data:row,error}=await supabaseClient.from("study_state")
+    .select("data,updated_at").eq("user_id",cloudUser.id).maybeSingle();
+  if(error){console.error(error);setSyncStatus("Ошибка загрузки облака","error");return;}
+  if(!row){
+    await pushStateToCloud();
+    toast("Текущий прогресс сохранён в облако");
+    return;
+  }
+  const cloudTs=Date.parse(row.updated_at||0)||0;
+  let localChanged=0,lastSynced=0;
+  try{localChanged=Number(localStorage.getItem(LOCAL_CHANGED_KEY)||0);lastSynced=Number(localStorage.getItem(CLOUD_SYNCED_KEY)||0);}catch(_){}
+  const localChangedSinceSync=localChanged>lastSynced+1000;
+  const cloudChangedSinceSync=cloudTs>lastSynced+1000;
+  if(localChangedSinceSync && cloudChangedSinceSync){
+    const useCloud=confirm("Есть изменения и на этом устройстве, и в облаке. OK — загрузить облачную версию. Отмена — оставить эту версию и отправить её в облако.");
+    if(!useCloud){await pushStateToCloud();return;}
+  }else if(localChangedSinceSync && !cloudChangedSinceSync){
+    await pushStateToCloud(); return;
+  }
+  state=normalizeState(row.data);
+  safeLocalSave(false);
+  try{localStorage.setItem(CLOUD_SYNCED_KEY,String(cloudTs));localStorage.setItem(LOCAL_CHANGED_KEY,String(cloudTs));}catch(_){}
+  refreshAllViews();
+  setSyncStatus("Облако: синхронизировано","online");
+  toast("Прогресс загружен из облака");
+}
+async function handleSignedIn(user){
+  cloudUser=user;
+  document.getElementById("syncBtn").textContent="Выйти";
+  setSyncStatus("Облако: подключено","online");
+  await initialCloudSync();
+}
+async function initCloud(){
+  if(!supabaseClient){setSyncStatus("Supabase не загрузился","error");return;}
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(session?.user) await handleSignedIn(session.user);
+}
+
 function dateKey(ts=Date.now()){ return new Date(ts).toISOString().slice(0,10); }
 function session(){ const k=dateKey(); return state.sessions[k]||(state.sessions[k]={reviews:0,good:0,again:0}); }
 
@@ -759,13 +889,40 @@ document.getElementById("resetBtn").onclick=()=>{
     state={cards:[...defaults.filter(c=>!(state.deletedIds||[]).includes(c.id)),...custom],sessions:{},deletedIds:state.deletedIds||[],history:[]};save();renderLibrary();pickCard();toast("Прогресс сброшен");
   }
 };
+document.getElementById("syncBtn").onclick=async()=>{
+  if(cloudUser){
+    await supabaseClient.auth.signOut(); cloudUser=null;
+    document.getElementById("syncBtn").textContent="Войти";
+    setSyncStatus("Облако: не подключено");
+    toast("Выход выполнен");
+  }else{
+    document.getElementById("authError").textContent="";
+    document.getElementById("authModal").classList.add("show");
+    setTimeout(()=>document.getElementById("authEmail").focus(),50);
+  }
+};
+document.getElementById("authCancel").onclick=()=>document.getElementById("authModal").classList.remove("show");
+document.getElementById("authModal").onclick=e=>{if(e.target.id==="authModal")e.currentTarget.classList.remove("show")};
+document.getElementById("authForm").onsubmit=async e=>{
+  e.preventDefault();
+  const email=document.getElementById("authEmail").value.trim();
+  const password=document.getElementById("authPassword").value;
+  const err=document.getElementById("authError"); err.textContent="";
+  setSyncStatus("Облако: вход…","busy");
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error){err.textContent=error.message;setSyncStatus("Ошибка входа","error");return;}
+  document.getElementById("authPassword").value="";
+  document.getElementById("authModal").classList.remove("show");
+  await handleSignedIn(data.user);
+};
+
 document.addEventListener("keydown",e=>{
   if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName))return;
   if(e.code==="Space"){e.preventDefault();reveal();}
   if(e.key==="1"&&document.getElementById("gradeRow").classList.contains("show"))grade(false);
   if(e.key==="2"&&document.getElementById("gradeRow").classList.contains("show"))grade(true);
 });
-renderTimer();updateStats();updateTopicFilters();renderDailyCards();renderHistorySummary();pickCard();
+renderTimer();updateStats();updateTopicFilters();renderDailyCards();renderHistorySummary();pickCard();initCloud();
 </script>
 </body>
 </html>
