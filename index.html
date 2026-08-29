@@ -176,13 +176,15 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
   .shell{padding:14px 12px 32px;max-width:100%;overflow:hidden}.topbar{align-items:center;flex-direction:row;margin-bottom:14px;gap:12px}
   .brand{min-width:0}.brand h1{font-size:27px;margin-bottom:2px}.brand p{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.topbar>.tabs,.topbar>.sync-box{display:none}
   .menu-toggle{display:block;margin-left:auto;z-index:52}.drawer-backdrop{display:block;position:fixed;inset:0;background:rgba(45,43,69,.28);opacity:0;visibility:hidden;transition:.2s;z-index:49;backdrop-filter:blur(2px)}
-  .mobile-drawer{display:flex;position:fixed;inset:0 0 0 auto;width:min(86vw,350px);padding:76px 17px 24px;flex-direction:column;gap:16px;background:var(--bg);box-shadow:-12px 0 30px rgba(45,43,69,.18);transform:translateX(105%);transition:transform .25s ease;z-index:50;overflow-y:auto;overscroll-behavior:contain}
+  .mobile-drawer{display:flex;position:fixed;inset:0 0 0 auto;width:min(86vw,350px);max-width:100%;padding:72px 12px 24px;flex-direction:column;gap:12px;background:var(--bg);box-shadow:-12px 0 30px rgba(45,43,69,.18);transform:translateX(105%);transition:transform .25s ease;z-index:50;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain}
   body.drawer-open .mobile-drawer{transform:none}body.drawer-open .drawer-backdrop{opacity:1;visibility:visible}body.drawer-open .menu-toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}body.drawer-open .menu-toggle span:nth-child(2){opacity:0}body.drawer-open .menu-toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-  .mobile-drawer .tabs{display:grid;width:100%;grid-template-columns:1fr;padding:7px}.mobile-drawer .tab{text-align:left}.mobile-drawer .sync-box{display:grid;width:100%;grid-template-columns:1fr}.mobile-drawer .sync-status{text-align:center}.mobile-drawer .stats,.mobile-drawer .filters,.mobile-drawer .daily,.mobile-drawer .history-launch{flex:none;width:100%}
-  .grid{display:flex;flex-direction:column;gap:14px;width:100%;max-width:100%}.center-column,.left-column,.right-column{display:contents}.main-card{order:1;padding:19px;min-width:0;overflow:visible}.timer{order:2}.goal{order:3}
-  .timer{padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:10px 12px;align-items:center}.timer h2{margin:0;font-size:15px}.timer-face{width:auto;height:auto;margin:0;background:none;box-shadow:none;grid-column:1}.timer-face::after{display:none}.timer-value{text-align:left}.timer-value b{font-size:25px}.timer-value span{display:none}.timer-actions{grid-column:2;grid-row:1/3;grid-template-columns:1fr;gap:6px}.timer-actions button{padding:8px 11px;border-radius:13px;font-size:12px}
+  .mobile-drawer *{min-width:0;max-width:100%}.mobile-drawer .tabs{display:grid;width:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;padding:5px}.mobile-drawer .tab{padding:9px 4px;font-size:11px;text-align:center;white-space:nowrap}.mobile-drawer .sync-box{display:flex;width:100%;flex-wrap:nowrap;gap:7px}.mobile-drawer .sync-status{flex:1;padding:8px 7px;text-align:center;overflow:hidden;text-overflow:ellipsis;font-size:9px}.mobile-drawer .sync-btn{flex:0 0 auto;padding:8px 10px;font-size:11px}.mobile-drawer .stats,.mobile-drawer .filters,.mobile-drawer .daily,.mobile-drawer .history-launch{flex:none;width:100%;overflow:hidden}
+  .mobile-drawer .stats{display:block;padding:14px}.mobile-drawer .stats h2{margin:0 0 10px;font-size:15px}.mobile-drawer .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.mobile-drawer .stat{padding:9px 8px}.mobile-drawer .stat b{font-size:16px}.mobile-drawer .stat span{display:block;font-size:9px;line-height:1.2;overflow-wrap:anywhere}.mobile-drawer .progress-wrap{margin-top:10px}.mobile-drawer .progress-label{font-size:10px}
+  .mobile-drawer .filters,.mobile-drawer .daily{padding:0}.mobile-drawer .filters h2,.mobile-drawer .daily h2{position:relative;margin:0!important;padding:15px 40px 15px 15px;font-size:14px!important;cursor:pointer}.mobile-drawer .filters h2::after,.mobile-drawer .daily h2::after{content:"›";position:absolute;right:17px;top:50%;font-size:24px;line-height:1;transform:translateY(-50%) rotate(90deg);transition:transform .2s}.mobile-drawer .filters.mobile-expanded h2::after,.mobile-drawer .daily.mobile-expanded h2::after{transform:translateY(-50%) rotate(-90deg)}.mobile-drawer .filters:not(.mobile-expanded)>:not(h2),.mobile-drawer .daily:not(.mobile-expanded)>:not(h2){display:none}.mobile-drawer .filters.mobile-expanded,.mobile-drawer .daily.mobile-expanded{padding-bottom:14px}.mobile-drawer .filters.mobile-expanded>:not(h2),.mobile-drawer .daily.mobile-expanded>:not(h2){margin-left:14px;margin-right:14px}.mobile-drawer .daily-card{overflow:hidden}.mobile-drawer .daily-definition{display:none}.mobile-drawer .daily-card.expanded .daily-definition{display:block}
+  .grid{display:flex;flex-direction:column;gap:14px;width:100%;max-width:100%}.center-column,.left-column,.right-column{display:contents}.main-card{order:1;padding:19px;min-width:0;overflow:visible}.goal{order:3}
+  .topbar>.timer{display:block;width:48px;height:48px;margin-left:auto;padding:0;border-radius:50%;flex:0 0 48px;overflow:visible;cursor:pointer;box-shadow:7px 7px 15px rgba(166,172,168,.55),-6px -6px 14px #fff}.topbar>.timer+.menu-toggle{margin-left:0}.topbar>.timer h2,.topbar>.timer .timer-actions{display:none}.topbar>.timer .timer-face{width:48px;height:48px;margin:0;box-shadow:none}.topbar>.timer .timer-face::after{inset:5px}.topbar>.timer .timer-value b{font-size:11px;letter-spacing:-.03em}.topbar>.timer .timer-value span{display:none}.topbar>.timer.timer-running{box-shadow:0 0 0 3px rgba(101,152,140,.22),7px 7px 15px rgba(166,172,168,.55),-6px -6px 14px #fff}
   .goal{padding:16px}.goal h2{margin-bottom:10px}.goal-grid{gap:7px}.goal-stat{padding:10px 8px}.goal-stat b{font-size:16px}.goal-stat span{font-size:10px}
-  .term{font-size:31px;overflow-wrap:anywhere}.question,.answer{font-size:16px;overflow-wrap:anywhere}.answer{padding:16px;max-width:100%}.card-tools{grid-template-columns:1fr}.hint{display:none}
+  .term{font-size:31px;overflow-wrap:anywhere}.question,.answer{font-size:16px;overflow-wrap:anywhere}.answer{padding:16px;max-width:100%}.main-card .actions{gap:9px;padding-top:18px}.main-card .reveal,.main-card .grade{padding:12px 9px;font-size:13px}.main-card .grade-row{gap:8px}.main-card .card-tools{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.main-card .card-tools .small-btn{padding:9px 4px;font-size:10px;white-space:nowrap}.hint{display:none}
   .library,.editor{padding:16px;width:100%;overflow:visible}.lib-toolbar{gap:9px}.card-list{max-height:none;overflow:visible;padding:2px;min-width:0}.lib-item{grid-template-columns:minmax(0,1fr);padding:14px;gap:10px;max-width:100%;min-width:0;overflow:hidden}.lib-item>div:first-child{min-width:0}.lib-item h3,.lib-item p,.lib-detail{overflow-wrap:anywhere;word-break:break-word}.lib-item>div:nth-child(2){flex-wrap:wrap}.lib-detail{grid-column:1;padding:14px;min-width:0;max-width:100%;overflow:hidden}.card-copy,.card-copy *{max-width:100%}.card-copy img,.card-copy svg{max-width:100%;height:auto}.card-copy pre{max-width:100%;overflow-x:auto}.show-more.visible{display:block}.footer-actions .secondary{flex:1 1 140px}
 }
 
@@ -275,14 +277,14 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
           <p id="question" class="question"></p>
           <div id="answer" class="answer neo-inset"></div>
           <div class="actions">
-            <button id="revealBtn" class="reveal neo">Показать определение <span style="opacity:.55">Space</span></button>
+            <button id="revealBtn" class="reveal neo">Показать</button>
             <div id="gradeRow" class="grade-row">
-              <button id="againBtn" class="grade bad neo">Не вспомнила <span style="opacity:.55">1</span></button>
-              <button id="goodBtn" class="grade good neo">Вспомнила <span style="opacity:.55">2</span></button>
+              <button id="againBtn" class="grade bad neo">Не вспомнила</button>
+              <button id="goodBtn" class="grade good neo">Вспомнила</button>
             </div>
             <div class="card-tools">
-              <button id="editCurrentBtn" class="small-btn neo">Редактировать карточку</button>
-              <button id="deleteCurrentBtn" class="small-btn neo delete-card">Удалить карточку</button>
+              <button id="editCurrentBtn" class="small-btn neo">Редактировать</button>
+              <button id="deleteCurrentBtn" class="small-btn neo delete-card">Удалить</button>
             </div>
           </div>
           <div class="hint">Карточки, которые забываются, получают больший вес и возвращаются чаще. Хорошо знакомые — реже, но не исчезают полностью.</div>
@@ -551,9 +553,10 @@ function renderDailyCards(){
   const subjects=["Algorithmen & Programmierung","Digitaltechnik","Diskrete Mathematik"];
   const picks=subjects.map(dailyPickForSubject).filter(Boolean);
   const el=document.getElementById("dailyCards");
-  el.innerHTML=picks.length?picks.map(c=>`<button class="daily-card neo-inset" data-id="${c.id}"><b>${escapeHtml(c.term)}</b><span>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Без темы")}</span><div class="daily-definition card-copy">${formatCardText(c.definition)}</div></button>`).join(""):'<div class="empty">Нет карточек</div>';
+  el.innerHTML=picks.length?picks.map(c=>`<button class="daily-card neo-inset" data-id="${c.id}" aria-expanded="false"><b>${escapeHtml(c.term)}</b><span>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Без темы")}</span><div class="daily-definition card-copy">${formatCardText(c.definition)}</div></button>`).join(""):'<div class="empty">Нет карточек</div>';
   typesetMath([el]);
   el.querySelectorAll(".daily-card").forEach(button=>button.onclick=()=>{
+    if(window.matchMedia("(max-width:620px)").matches){const expanded=button.classList.toggle("expanded");button.setAttribute("aria-expanded",String(expanded));return}
     current=state.cards.find(c=>c.id===button.dataset.id)||null;
     if(current){setView("review");renderCard();window.scrollTo({top:0,behavior:"smooth"});}
   });
@@ -852,16 +855,21 @@ document.getElementById("showMoreCards").onclick=()=>{libraryVisible+=10;renderL
 
 const mobileQuery=window.matchMedia("(max-width:620px)");
 const drawer=document.getElementById("mobileDrawer");
+const timer=document.querySelector("#reviewView .timer");
+timer.setAttribute("role","button");timer.setAttribute("tabindex","0");timer.setAttribute("aria-label","Запустить таймер");
+const timerHome=document.createComment("timer-home");
+timer.parentNode.insertBefore(timerHome,timer);
 const movable=[...document.querySelectorAll(".topbar>.tabs,.topbar>.sync-box,#reviewView .stats,#reviewView .filters,#reviewView .daily,#reviewView .history-launch")];
 const homes=new Map(movable.map(node=>{const marker=document.createComment("mobile-home");node.parentNode.insertBefore(marker,node);return [node,marker]}));
 function closeDrawer(){document.body.classList.remove("drawer-open");document.getElementById("menuToggle").setAttribute("aria-expanded","false")}
 function arrangeMobile(){
-  if(mobileQuery.matches)movable.forEach(node=>drawer.appendChild(node));
-  else{movable.forEach(node=>{const marker=homes.get(node);marker.parentNode.insertBefore(node,marker.nextSibling)});closeDrawer()}
+  if(mobileQuery.matches){document.querySelector(".topbar").insertBefore(timer,document.getElementById("menuToggle"));movable.forEach(node=>drawer.appendChild(node))}
+  else{timerHome.parentNode.insertBefore(timer,timerHome.nextSibling);movable.forEach(node=>{const marker=homes.get(node);marker.parentNode.insertBefore(node,marker.nextSibling)});closeDrawer()}
 }
 document.getElementById("menuToggle").onclick=()=>{const open=document.body.classList.toggle("drawer-open");document.getElementById("menuToggle").setAttribute("aria-expanded",String(open))};
 document.getElementById("drawerBackdrop").onclick=closeDrawer;
 drawer.addEventListener("click",e=>{if(e.target.closest(".tab"))closeDrawer()});
+document.querySelectorAll(".filters h2,.daily h2").forEach(heading=>{heading.setAttribute("role","button");heading.setAttribute("tabindex","0");heading.setAttribute("aria-expanded","false");const toggle=()=>{if(mobileQuery.matches){const expanded=heading.parentElement.classList.toggle("mobile-expanded");heading.setAttribute("aria-expanded",String(expanded))}};heading.onclick=toggle;heading.onkeydown=e=>{if((e.key==="Enter"||e.key===" ")&&mobileQuery.matches){e.preventDefault();toggle()}}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer()});
 mobileQuery.addEventListener?.("change",()=>{arrangeMobile();renderLibrary(true)});
 arrangeMobile();
@@ -882,16 +890,20 @@ function renderTimer(){
   document.getElementById("timerFace").style.setProperty("--timer-progress",Math.round((TIMER_TOTAL-timerLeft)/TIMER_TOTAL*100)+"%");
 }
 function stopTimer(){
-  clearInterval(timerInterval);timerInterval=null;document.getElementById("timerToggle").textContent=timerLeft?"Продолжить":"Готово";
+  clearInterval(timerInterval);timerInterval=null;timer.classList.remove("timer-running");document.getElementById("timerToggle").textContent=timerLeft?"Продолжить":"Готово";
 }
-document.getElementById("timerToggle").onclick=()=>{
+function toggleTimer(){
   if(timerInterval){stopTimer();return}
   if(!timerLeft)timerLeft=TIMER_TOTAL;
+  timer.classList.add("timer-running");
   document.getElementById("timerToggle").textContent="Пауза";
   timerInterval=setInterval(()=>{timerLeft--;renderTimer();if(timerLeft<=0)stopTimer()},1000);
-};
+}
+document.getElementById("timerToggle").onclick=toggleTimer;
+timer.onclick=e=>{if(mobileQuery.matches&&!e.target.closest(".timer-actions"))toggleTimer()};
+timer.onkeydown=e=>{if(mobileQuery.matches&&(e.key==="Enter"||e.key===" ")){e.preventDefault();toggleTimer()}};
 document.getElementById("timerReset").onclick=()=>{
-  clearInterval(timerInterval);timerInterval=null;timerLeft=TIMER_TOTAL;renderTimer();document.getElementById("timerToggle").textContent="Старт";
+  clearInterval(timerInterval);timerInterval=null;timer.classList.remove("timer-running");timerLeft=TIMER_TOTAL;renderTimer();document.getElementById("timerToggle").textContent="Старт";
 };
 
 document.getElementById("cardForm").onsubmit=e=>{
