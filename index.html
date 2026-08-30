@@ -82,6 +82,7 @@ button:active{transform:translateY(1px);box-shadow:inset 4px 4px 9px rgba(166,17
 .card-tools{display:none;grid-template-columns:42px 42px;gap:10px}
 .main-card.answer-revealed .card-tools{display:grid}
 .card-tool{width:42px;height:42px;padding:0;display:grid;place-items:center;border:0;color:var(--muted);font-size:19px}
+.card-tool.delete-card{font-size:24px;font-weight:400;line-height:1}
 .card-tool.delete-card:hover,.card-tool.delete-card:focus-visible{color:var(--danger)}
 .reveal{border:0;padding:15px 18px;font-weight:800;color:var(--accent)}
 .grade-row{display:none;grid-template-columns:1fr 1fr;gap:12px}
@@ -237,7 +238,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
   .topbar>.timer{display:block;width:48px;height:48px;margin-left:auto;padding:0;border-radius:50%;flex:0 0 48px;overflow:visible;cursor:pointer;box-shadow:7px 7px 15px rgba(166,172,168,.55),-6px -6px 14px #fff}.topbar>.timer+.menu-toggle{margin-left:0}.topbar>.timer h2,.topbar>.timer .timer-actions{display:none}.topbar>.timer .timer-face{width:48px;height:48px;margin:0;box-shadow:none}.topbar>.timer .timer-face::after{inset:5px}.topbar>.timer .timer-value b{font-size:11px;letter-spacing:-.03em}.topbar>.timer .timer-value span{display:none}.topbar>.timer.timer-running{box-shadow:0 0 0 3px rgba(120,141,130,.2),7px 7px 15px rgba(166,172,168,.55),-6px -6px 14px #fff}
   .goal{padding:13px 18px 14px;border-radius:24px;box-shadow:0 10px 30px rgba(41,49,58,.14),-5px -5px 15px rgba(255,255,255,.9),inset 1px 1px 1px rgba(255,255,255,.8)}.goal h2{font-size:15px;margin-bottom:3px}.goal-grid{display:flex;align-items:end;justify-content:space-between;margin-bottom:9px}.goal-stat{padding:0;border:0;box-shadow:none;background:transparent}.goal-stat:first-child{display:none}.goal-stat:nth-child(2) b{display:inline;font-size:16px;color:var(--accent2)}.goal-stat:nth-child(2) span{font-size:12px;margin-left:4px}.goal-stat:nth-child(3){text-align:right}.goal-stat:nth-child(3) b{font-size:27px;color:var(--accent2);line-height:1}.goal-stat:nth-child(3) span{display:inline;font-size:10px;margin-left:4px}.goal .progress{height:7px}
   .subject-pill{padding:6px 10px;font-size:12px}.card-head .subject-pill{margin-bottom:18px}.term{font-size:28px;margin-bottom:10px;overflow-wrap:anywhere}.question{font-size:15px;margin-bottom:14px}.answer{font-size:16px;padding:0;margin-top:16px;background:transparent;border:0;border-radius:0;box-shadow:none;max-width:100%}.answer.show{padding-top:16px;border-top:1px solid rgba(123,128,131,.16)}.card-meta{font-size:11px}.main-card .actions{gap:12px;padding-top:18px}.main-card:not(.answer-revealed) .actions{margin-top:auto}.main-card .reveal,.main-card .grade{padding:15px 9px;font-size:13px}.main-card .grade-row{gap:10px}.card-tool{width:40px;height:40px}.hint{display:none}
-  .library,.editor{padding:16px;width:100%;overflow:visible}.lib-toolbar{gap:9px}.card-list{max-height:none;overflow:visible;padding:2px;min-width:0}.lib-item{grid-template-columns:minmax(0,1fr);padding:14px;gap:10px;max-width:100%;min-width:0;overflow:hidden}.lib-item>div:first-child{min-width:0}.lib-item h3,.lib-item p,.lib-detail{overflow-wrap:anywhere;word-break:break-word}.lib-item>div:nth-child(2){width:100%;justify-content:flex-end;flex-wrap:nowrap;gap:7px!important}.lib-item>div:nth-child(2) .badge{margin-right:auto}.lib-item>div:nth-child(2) .small-btn{width:32px;height:32px;flex:0 0 32px;padding:0;border-radius:12px;display:grid;place-items:center;font-size:11px}.lib-detail{grid-column:1;padding:14px;min-width:0;max-width:100%;overflow:hidden}.card-copy,.card-copy *{max-width:100%}.card-copy img,.card-copy svg{max-width:100%;height:auto}.card-copy pre{max-width:100%;overflow-x:auto}.show-more.visible{display:block}.footer-actions .secondary{flex:1 1 140px}
+  .library,.editor{padding:16px;width:100%;overflow:visible}.lib-toolbar{gap:9px}.card-list{max-height:none;overflow:visible;padding:2px;min-width:0}.lib-item{grid-template-columns:minmax(0,1fr);padding:14px;gap:10px;max-width:100%;min-width:0;overflow:hidden}.lib-item>div:first-child{min-width:0}.lib-item h3,.lib-item p,.lib-detail{overflow-wrap:anywhere;word-break:break-word}.lib-item>div:nth-child(2){width:100%;justify-content:flex-end;flex-wrap:nowrap;gap:7px!important}.lib-item>div:nth-child(2) .badge{margin-right:auto}.lib-item>div:nth-child(2) .small-btn{width:32px;height:32px;flex:0 0 32px;padding:0;border-radius:12px;display:grid;place-items:center;line-height:1}.lib-item>div:nth-child(2) .editCard{font-size:16px}.lib-item>div:nth-child(2) .delete-card{font-size:21px;font-weight:400}.lib-detail{grid-column:1;padding:14px;min-width:0;max-width:100%;overflow:hidden}.card-copy,.card-copy *{max-width:100%}.card-copy img,.card-copy svg{max-width:100%;height:auto}.card-copy pre{max-width:100%;overflow-x:auto}.show-more.visible{display:block}.footer-actions .secondary{flex:1 1 140px}
 }
 
 .sync-box{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -330,7 +331,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
             <div id="subjectPill" class="subject-pill neo-inset">—</div>
             <div class="card-tools" aria-label="Действия с карточкой">
               <button id="editCurrentBtn" class="card-tool neo" title="Редактировать" aria-label="Редактировать карточку">✎</button>
-              <button id="deleteCurrentBtn" class="card-tool neo delete-card" title="Удалить" aria-label="Удалить карточку">🗑</button>
+              <button id="deleteCurrentBtn" class="card-tool neo delete-card" title="Удалить" aria-label="Удалить карточку">×</button>
             </div>
           </div>
           <h2 id="term" class="term">Загрузка…</h2>
@@ -820,7 +821,7 @@ function renderLibrary(resetLimit=false){
       <div style="display:flex;gap:8px;align-items:center">
         <span class="badge ${cls} neo">${txt}</span>
         <button class="small-btn neo editCard" data-id="${c.id}">✎</button>
-        <button class="small-btn neo delete-card" data-id="${c.id}" title="Удалить карточку" aria-label="Удалить карточку ${escapeHtml(c.term)}">&#128465;</button>
+        <button class="small-btn neo delete-card" data-id="${c.id}" title="Удалить карточку" aria-label="Удалить карточку ${escapeHtml(c.term)}">&times;</button>
       </div>
       <div class="lib-detail neo-inset"><div class="lib-question card-copy">${formatCardText(c.question||"")}</div><div class="lib-answer card-copy">${formatCardText(c.definition||"")}</div>${c.note?`<div class="lib-note card-copy">${formatCardText(c.note)}</div>`:""}</div>
     </div>`
