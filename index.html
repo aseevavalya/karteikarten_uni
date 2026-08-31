@@ -166,8 +166,10 @@ select,input,textarea{
 .lib-toolbar{display:grid;grid-template-columns:1fr 220px 220px;gap:12px;margin-bottom:18px}
 @media(max-width:620px){.lib-toolbar{grid-template-columns:1fr}}
 .card-list{display:grid;gap:12px;max-height:66vh;overflow:auto;padding:3px 8px 8px 3px}
-.topic-heading{margin:15px 5px 2px;font-size:15px;color:var(--accent);letter-spacing:.01em}
-.topic-heading:first-child{margin-top:2px}
+.topic-heading-row{margin:15px 5px 2px;display:flex;align-items:center;gap:8px}
+.topic-heading-row:first-child{margin-top:2px}
+.topic-heading{margin:0;font-size:15px;color:var(--accent);letter-spacing:.01em}
+.rename-topic{width:28px;height:28px;padding:0;border:0;border-radius:10px;color:var(--muted);display:grid;place-items:center;font-size:13px}
 .lib-item{padding:16px 17px;border-radius:18px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
 .lib-item h3{margin:0 0 5px;font-size:16px}.lib-item p{margin:0;color:var(--muted);font-size:13px}
 .lib-detail{display:none;grid-column:1/-1;margin-top:3px;padding:17px 18px;border-radius:18px;line-height:1.58}.lib-item.expanded .lib-detail{display:block}
@@ -903,7 +905,7 @@ function renderLibrary(resetLimit=false){
   el.innerHTML=visibleList.map(c=>{
     const [txt,cls]=statusOf(c);
     const group=c.subject+"|||"+(c.topic||"");
-    const heading=group!==previousGroup?`<h3 class="topic-heading">${escapeHtml(c.topic||"Без темы")}</h3>`:"";
+    const heading=group!==previousGroup?`<div class="topic-heading-row"><h3 class="topic-heading">${escapeHtml(c.topic||"Без темы")}</h3><button class="rename-topic neo" type="button" data-subject="${escapeHtml(c.subject)}" data-topic="${escapeHtml(c.topic||"")}" title="Переименовать тему" aria-label="Переименовать тему ${escapeHtml(c.topic||"Без темы")}">✎</button></div>`:"";
     previousGroup=group;
     return `${heading}<div class="lib-item neo-inset" role="button" tabindex="0" aria-expanded="false">
       <div><h3>${escapeHtml(c.term)}</h3><p>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Без темы")} · ${c.reviews} повторений · ${c.correct} удачных</p></div>
@@ -926,6 +928,7 @@ function renderLibrary(resetLimit=false){
   document.querySelectorAll(".editCard").forEach(b=>b.onclick=()=>openEdit(b.dataset.id));
   document.querySelectorAll(".delete-card").forEach(b=>b.onclick=()=>deleteCard(b.dataset.id));
   document.querySelectorAll(".familiarity-toggle").forEach(b=>b.onclick=()=>toggleFamiliar(b.dataset.id));
+  document.querySelectorAll(".rename-topic").forEach(b=>b.onclick=()=>renameTopic(b.dataset.subject,b.dataset.topic));
 }
 function fillTopicSelect(select,subjects){
   const previous=new Set(selectedValues(select));
@@ -959,10 +962,10 @@ function updateTopicFilters(){
     topicOptions.innerHTML=topics.map(topic=>`<option value="${escapeHtml(topic)}"></option>`).join("");
   }
 }
-function resolveTopicName(subject,value){
+function resolveTopicName(subject,value,excludeTopic=null){
   const entered=(value||"").trim().replace(/\s+/g," ");
   const normalized=entered.normalize("NFKC").toLocaleLowerCase("de");
-  const existing=state.cards.find(card=>card.subject===subject&&
+  const existing=state.cards.find(card=>card.subject===subject&&card.topic!==excludeTopic&&
     (card.topic||"").trim().replace(/\s+/g," ").normalize("NFKC").toLocaleLowerCase("de")===normalized);
   return existing?(existing.topic||"").trim():entered;
 }
@@ -972,6 +975,31 @@ function toggleFamiliar(id){
   save();renderLibrary();
   if(current&&current.id===id)renderCard();
   toast(card.manualFamiliar?"Карточка помечена как знакомая":"Отметка «Знакома» снята");
+}
+function renameTopic(subject,oldTopic){
+  const entered=prompt(`Новое название темы «${oldTopic}»:`,oldTopic);
+  if(entered===null)return;
+  const newTopic=resolveTopicName(subject,entered,oldTopic);
+  if(!newTopic){alert("Название темы не может быть пустым.");return}
+  if(newTopic===oldTopic)return;
+  const librarySelect=document.getElementById("libraryTopic"),reviewSelect=document.getElementById("reviewTopic");
+  const wasSelectedInLibrary=selectedValues(librarySelect).includes(oldTopic);
+  const wasSelectedInReview=selectedValues(reviewSelect).includes(subject+"|||"+oldTopic);
+  const cardIds=new Set(state.cards.filter(card=>card.subject===subject&&card.topic===oldTopic).map(card=>card.id));
+  state.cards.forEach(card=>{if(cardIds.has(card.id))card.topic=newTopic});
+  (state.history||[]).forEach(item=>{if(cardIds.has(item.id))item.topic=newTopic});
+  save();updateTopicFilters();
+  if(wasSelectedInLibrary){
+    [...librarySelect.options].forEach(option=>{if(!option.value)option.selected=false;if(option.value===newTopic)option.selected=true});
+    renderMultiSelect(librarySelect);
+  }
+  if(wasSelectedInReview){
+    [...reviewSelect.options].forEach(option=>{if(!option.value)option.selected=false;if(option.value===subject+"|||"+newTopic)option.selected=true});
+    renderMultiSelect(reviewSelect);
+  }
+  renderLibrary();
+  if(current&&cardIds.has(current.id))renderCard();
+  toast("Тема переименована");
 }
 function deleteCard(id){
   const c=state.cards.find(x=>x.id===id); if(!c)return;
