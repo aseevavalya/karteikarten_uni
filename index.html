@@ -827,7 +827,11 @@ function renderLibrary(resetLimit=false){
   const q=document.getElementById("searchInput").value.trim().toLowerCase();
   const sub=document.getElementById("librarySubject").value;
   const topic=document.getElementById("libraryTopic").value;
-  const list=state.cards.filter(c=>(!sub||c.subject===sub)&&(!topic||c.topic===topic)&&(!q||(c.term+" "+c.question+" "+c.definition).toLowerCase().includes(q)));
+  const list=state.cards
+    .filter(c=>(!sub||c.subject===sub)&&(!topic||c.topic===topic)&&(!q||(c.term+" "+c.question+" "+c.definition).toLowerCase().includes(q)))
+    .sort((a,b)=>a.subject.localeCompare(b.subject,"de")||
+      (a.topic||"").localeCompare(b.topic||"","de")||
+      (a.term||"").localeCompare(b.term||"","de"));
   const el=document.getElementById("cardList");
   const isMobile=window.matchMedia("(max-width:620px)").matches;
   const visibleList=isMobile?list.slice(0,libraryVisible):list;
@@ -835,11 +839,12 @@ function renderLibrary(resetLimit=false){
   showMore.classList.toggle("visible",isMobile&&libraryVisible<list.length);
   showMore.textContent=`Показать ещё (${Math.max(0,list.length-libraryVisible)})`;
   if(!list.length){el.innerHTML='<div class="empty">Ничего не найдено</div>';showMore.classList.remove("visible");return}
-  let previousTopic=null;
+  let previousGroup=null;
   el.innerHTML=visibleList.map(c=>{
     const [txt,cls]=statusOf(c);
-    const heading=c.topic!==previousTopic?`<h3 class="topic-heading">${escapeHtml(c.topic||"Без темы")}</h3>`:"";
-    previousTopic=c.topic;
+    const group=c.subject+"|||"+(c.topic||"");
+    const heading=group!==previousGroup?`<h3 class="topic-heading">${escapeHtml(c.topic||"Без темы")}</h3>`:"";
+    previousGroup=group;
     return `${heading}<div class="lib-item neo-inset" role="button" tabindex="0" aria-expanded="false">
       <div><h3>${escapeHtml(c.term)}</h3><p>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Без темы")} · ${c.reviews} повторений · ${c.correct} удачных</p></div>
       <div style="display:flex;gap:8px;align-items:center">
