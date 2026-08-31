@@ -883,10 +883,18 @@ function updateTopicFilters(){
   fillTopicSelect(document.getElementById("libraryTopic"),subject?[subject]:[]);
   const topicOptions=document.getElementById("existingTopicOptions");
   if(topicOptions){
-    const topics=[...new Set(state.cards.map(card=>(card.topic||"").trim()).filter(Boolean))]
+    const editorSubject=document.getElementById("newSubject")?.value;
+    const topics=[...new Set(state.cards.filter(card=>!editorSubject||card.subject===editorSubject).map(card=>(card.topic||"").trim()).filter(Boolean))]
       .sort((a,b)=>a.localeCompare(b,"de"));
     topicOptions.innerHTML=topics.map(topic=>`<option value="${escapeHtml(topic)}"></option>`).join("");
   }
+}
+function resolveTopicName(subject,value){
+  const entered=(value||"").trim().replace(/\s+/g," ");
+  const normalized=entered.normalize("NFKC").toLocaleLowerCase("de");
+  const existing=state.cards.find(card=>card.subject===subject&&
+    (card.topic||"").trim().replace(/\s+/g," ").normalize("NFKC").toLocaleLowerCase("de")===normalized);
+  return existing?(existing.topic||"").trim():entered;
 }
 function deleteCard(id){
   const c=state.cards.find(x=>x.id===id); if(!c)return;
@@ -897,7 +905,7 @@ function deleteCard(id){
     if(!state.deletedIds.includes(id))state.deletedIds.push(id);
   }
   if(current&&current.id===id)current=null;
-  save();renderLibrary();pickCard();toast("Карточка удалена");
+  save();updateTopicFilters();renderLibrary(true);pickCard();toast("Карточка удалена");
 }
 function openEdit(id,returnView="library"){
   const c=state.cards.find(x=>x.id===id); if(!c)return;
@@ -906,6 +914,7 @@ function openEdit(id,returnView="library"){
   document.getElementById("formTitle").textContent="Редактировать карточку";
   document.getElementById("editId").value=c.id;
   document.getElementById("newSubject").value=c.subject;
+  updateTopicFilters();
   document.getElementById("newTerm").value=c.term;
   document.getElementById("newTopic").value=c.topic||"Eigene Karten";
   document.getElementById("newQuestion").value=c.question||"";
@@ -950,6 +959,10 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>setView(t.dataset.vie
 document.getElementById("searchInput").oninput=()=>renderLibrary(true);
 document.getElementById("librarySubject").onchange=()=>{updateTopicFilters();renderLibrary(true)};
 document.getElementById("libraryTopic").onchange=()=>renderLibrary(true);
+document.getElementById("newSubject").onchange=()=>{
+  document.getElementById("newTopic").value="";
+  updateTopicFilters();
+};
 document.getElementById("cancelEdit").onclick=()=>{const target=editReturnView;clearForm();setView(target);if(target==="review")renderCard()};
 document.getElementById("historyBtn").onclick=()=>{closeDrawer();renderHistory();document.getElementById("historyModal").classList.add("show")};
 document.getElementById("historyClose").onclick=()=>document.getElementById("historyModal").classList.remove("show");
@@ -1047,9 +1060,10 @@ document.getElementById("timerReset").onclick=()=>{
 document.getElementById("cardForm").onsubmit=e=>{
   e.preventDefault();
   const id=document.getElementById("editId").value;
+  const subject=document.getElementById("newSubject").value;
   const data={
-    subject:document.getElementById("newSubject").value,
-    topic:document.getElementById("newTopic").value.trim(),
+    subject,
+    topic:resolveTopicName(subject,document.getElementById("newTopic").value),
     term:document.getElementById("newTerm").value.trim(),
     question:document.getElementById("newQuestion").value.trim(),
     definition:document.getElementById("newDefinition").value.trim(),
@@ -1062,8 +1076,8 @@ document.getElementById("cardForm").onsubmit=e=>{
     state.cards.push({...data,id:"custom_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),custom:true,reviews:0,correct:0,lapses:0,streak:0,intervalDays:0,dueAt:0,lastReviewed:0});
   }
   const target=id?editReturnView:"library";
-  save();updateTopicFilters();clearForm();toast("Карточка сохранена");setView(target);
-  if(target==="review")renderCard();else pickCard();
+  save();clearForm();updateTopicFilters();toast("Карточка сохранена");setView(target);
+  if(target==="review")renderCard();else{renderLibrary(true);pickCard();}
 };
 
 document.getElementById("exportBtn").onclick=()=>{
