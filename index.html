@@ -74,7 +74,9 @@ button:active{transform:translateY(1px);box-shadow:inset 4px 4px 9px rgba(166,17
 .card-copy sub,.history-question sub{font-size:.68em;line-height:0;vertical-align:-.28em;margin-left:.02em}
 .math-help{display:block;margin-top:6px;color:var(--muted);font-size:11px}
 .math-toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.math-insert{border:1px solid rgba(255,255,255,.88);padding:7px 10px;border-radius:13px;font-family:"Cambria Math","STIX Two Math",serif;font-weight:700}
-.math-preview{display:none;margin-top:12px;padding:14px 16px;border-radius:17px;line-height:1.55}.math-preview.has-content{display:block}.math-preview::before{content:"Предпросмотр";display:block;margin-bottom:8px;color:var(--muted);font:700 11px "Segoe UI Variable Text","Segoe UI",sans-serif}
+.math-preview{display:none;width:100%;max-width:100%;min-width:0;margin-top:12px;padding:14px 16px;border-radius:17px;line-height:1.55;overflow:hidden;overflow-wrap:anywhere;word-break:break-word}.math-preview.has-content{display:block}.math-preview::before{content:"Предпросмотр";display:block;margin-bottom:8px;color:var(--muted);font:700 11px "Segoe UI Variable Text","Segoe UI",sans-serif}
+.math-preview mjx-container,.card-copy mjx-container{width:100%;max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+.math-preview mjx-container svg,.card-copy mjx-container svg{max-width:none}
 .missing{color:var(--warn);font-weight:700}
 .actions{margin-top:auto;padding-top:24px;display:grid;gap:12px}
 .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
@@ -161,9 +163,9 @@ select,input,textarea{
 .lib-item{cursor:pointer}.lib-item .small-btn{cursor:pointer}
 .badge{padding:6px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
 .badge.open{color:var(--warn)} .badge.learning{color:var(--danger)} .badge.known{color:var(--accent2)} .badge.new{color:var(--accent)}
-.form-grid{display:grid;gap:14px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid{display:grid;gap:14px;min-width:0;max-width:100%}.form-grid>*,.form-row>*,.history-inline-editor>*,.history-inline-editor>*>*{min-width:0;max-width:100%}.form-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;min-width:0;max-width:100%}
 @media(max-width:620px){.form-row{grid-template-columns:1fr}}
-textarea{min-height:120px;resize:vertical}
+textarea{min-height:120px;resize:none;overflow-y:hidden}
 .primary{border:0;padding:14px 18px;font-weight:850;color:var(--accent)}
 .secondary{border:0;padding:12px 14px;font-weight:750}
 .footer-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
@@ -243,7 +245,9 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
   .topbar>.timer{display:block;width:48px;height:48px;margin-left:auto;padding:0;border-radius:50%;flex:0 0 48px;overflow:visible;cursor:pointer;box-shadow:7px 7px 15px rgba(166,172,168,.55),-6px -6px 14px #fff}.topbar>.timer+.menu-toggle{margin-left:0}.topbar>.timer h2,.topbar>.timer .timer-actions{display:none}.topbar>.timer .timer-face{width:48px;height:48px;margin:0;box-shadow:none}.topbar>.timer .timer-face::after{inset:5px}.topbar>.timer .timer-value b{font-size:11px;letter-spacing:-.03em}.topbar>.timer .timer-value span{display:none}.topbar>.timer.timer-running{box-shadow:0 0 0 3px rgba(120,141,130,.2),7px 7px 15px rgba(166,172,168,.55),-6px -6px 14px #fff}
   .goal{padding:13px 18px 14px;border-radius:24px;box-shadow:0 10px 30px rgba(41,49,58,.14),-5px -5px 15px rgba(255,255,255,.9),inset 1px 1px 1px rgba(255,255,255,.8)}.goal h2{font-size:15px;margin-bottom:3px}.goal-grid{display:flex;align-items:end;justify-content:space-between;margin-bottom:9px}.goal-stat{padding:0;border:0;box-shadow:none;background:transparent}.goal-stat:first-child{display:none}.goal-stat:nth-child(2) b{display:inline;font-size:16px;color:var(--accent2)}.goal-stat:nth-child(2) span{font-size:12px;margin-left:4px}.goal-stat:nth-child(3){text-align:right}.goal-stat:nth-child(3) b{font-size:27px;color:var(--accent2);line-height:1}.goal-stat:nth-child(3) span{display:inline;font-size:10px;margin-left:4px}.goal .progress{height:7px}
   .subject-pill{padding:6px 10px;font-size:12px}.card-head .subject-pill{margin-bottom:18px}.term{font-size:28px;margin-bottom:10px;overflow-wrap:anywhere}.question{font-size:15px;margin-bottom:14px}.answer{font-size:16px;padding:0;margin-top:16px;background:transparent;border:0;border-radius:0;box-shadow:none;max-width:100%}.answer.show{padding-top:16px;border-top:1px solid rgba(123,128,131,.16)}.card-meta{font-size:11px}.main-card .actions{gap:12px;padding-top:18px}.main-card:not(.answer-revealed) .actions{margin-top:auto}.main-card .reveal,.main-card .grade{padding:15px 9px;font-size:13px}.main-card .grade-row{gap:10px}.card-tool{width:40px;height:40px}.hint{display:none}
-  .library,.editor{padding:16px;width:100%;overflow:visible}.lib-toolbar{gap:9px}.card-list{max-height:none;overflow:visible;padding:2px;min-width:0}.lib-item{grid-template-columns:minmax(0,1fr);padding:14px;gap:10px;max-width:100%;min-width:0;overflow:hidden}.lib-item>div:first-child{min-width:0}.lib-item h3,.lib-item p,.lib-detail{overflow-wrap:anywhere;word-break:break-word}.lib-item>div:nth-child(2){width:100%;justify-content:flex-end;flex-wrap:nowrap;gap:7px!important}.lib-item>div:nth-child(2) .badge{margin-right:auto}.lib-item>div:nth-child(2) .small-btn{width:32px;height:32px;flex:0 0 32px;padding:0;border-radius:12px;display:grid;place-items:center;line-height:1}.lib-item>div:nth-child(2) .editCard{font-size:16px}.lib-item>div:nth-child(2) .delete-card{font-size:21px;font-weight:400}.lib-detail{grid-column:1;padding:14px;min-width:0;max-width:100%;overflow:hidden}.card-copy,.card-copy *{max-width:100%}.card-copy img,.card-copy svg{max-width:100%;height:auto}.card-copy pre{max-width:100%;overflow-x:auto}.show-more.visible{display:block}.footer-actions .secondary{flex:1 1 140px}
+  .library,.editor{padding:16px;width:100%;min-width:0;max-width:100%;overflow:hidden}.lib-toolbar{gap:9px}.card-list{max-height:none;overflow:visible;padding:2px;min-width:0}.lib-item{grid-template-columns:minmax(0,1fr);padding:14px;gap:10px;max-width:100%;min-width:0;overflow:hidden}.lib-item>div:first-child{min-width:0}.lib-item h3,.lib-item p,.lib-detail{overflow-wrap:anywhere;word-break:break-word}.lib-item>div:nth-child(2){width:100%;justify-content:flex-end;flex-wrap:nowrap;gap:7px!important}.lib-item>div:nth-child(2) .badge{margin-right:auto}.lib-item>div:nth-child(2) .small-btn{width:32px;height:32px;flex:0 0 32px;padding:0;border-radius:12px;display:grid;place-items:center;line-height:1}.lib-item>div:nth-child(2) .editCard{font-size:16px}.lib-item>div:nth-child(2) .delete-card{font-size:21px;font-weight:400}.lib-detail{grid-column:1;padding:14px;min-width:0;max-width:100%;overflow:hidden}.card-copy{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word}.card-copy *{max-width:100%}.card-copy img,.card-copy svg{max-width:100%;height:auto}.card-copy pre{max-width:100%;overflow-x:auto}.show-more.visible{display:block}.footer-actions .secondary{flex:1 1 140px}
+  .math-preview mjx-container[display="true"],.card-copy mjx-container[display="true"]{overflow:hidden}
+  .math-preview mjx-container[display="true"] svg,.card-copy mjx-container[display="true"] svg{width:auto!important;max-width:100%!important;height:auto!important}
 }
 
 .sync-box{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -652,7 +656,7 @@ function renderHistory(){
     const item=button.closest(".history-item"),expanded=item.classList.toggle("expanded");button.setAttribute("aria-expanded",String(expanded));
   });
   el.querySelectorAll(".history-edit:not(:disabled)").forEach(button=>button.onclick=()=>{
-    const editor=button.nextElementSibling;editor.classList.add("show");button.style.display="none";editor.querySelector("input[name=term]").focus();renderMathPreview(editor.querySelector("textarea[name=definition]"));
+    const editor=button.nextElementSibling;editor.classList.add("show");button.style.display="none";editor.querySelectorAll("textarea").forEach(autoResizeTextarea);editor.querySelector("input[name=term]").focus();renderMathPreview(editor.querySelector("textarea[name=definition]"));
   });
   el.querySelectorAll(".history-edit-cancel").forEach(button=>button.onclick=()=>{
     const editor=button.closest(".history-inline-editor");editor.reset();editor.classList.remove("show");editor.previousElementSibling.style.display="";
@@ -783,6 +787,11 @@ function typesetMath(elements){
   const run=()=>window.MathJax&&MathJax.typesetPromise&&MathJax.typesetPromise(elements).catch(()=>{});
   if(window.MathJax&&MathJax.typesetPromise)run();else window.addEventListener("load",run,{once:true});
 }
+function autoResizeTextarea(textarea){
+  if(!textarea||textarea.tagName!=="TEXTAREA")return;
+  textarea.style.height="auto";
+  textarea.style.height=textarea.scrollHeight+"px";
+}
 function renderMathPreview(textarea){
   const preview=textarea.closest("form").querySelector(".math-preview");if(!preview)return;
   if(window.MathJax&&MathJax.typesetClear)try{MathJax.typesetClear([preview])}catch(_){}
@@ -897,10 +906,12 @@ function openEdit(id,returnView="library"){
   document.getElementById("newDefinition").value=c.definition||"";
   document.getElementById("newNote").value=c.note||"";
   document.getElementById("cancelEdit").style.display="";
+  document.querySelectorAll("#cardForm textarea").forEach(autoResizeTextarea);
   renderMathPreview(document.getElementById("newDefinition"));
 }
 function clearForm(){
   document.getElementById("cardForm").reset();
+  document.querySelectorAll("#cardForm textarea").forEach(autoResizeTextarea);
   document.getElementById("editId").value="";
   document.getElementById("formTitle").textContent="Новая карточка";
   document.getElementById("cancelEdit").style.display="none";
@@ -995,9 +1006,13 @@ document.addEventListener("click",e=>{
   const form=button.closest("form"),textarea=form.querySelector('textarea[name="definition"],#newDefinition');
   const templates={inline:"\\(x^2\\)",fraction:"\\[\n\\frac{a}{b}\n\\]",sum:"\\[\n\\sum_{i=1}^{n} a_i\n\\]",set:"\\[\n\\{x \\in X \\mid P(x)\\}\n\\]",intersection:"\\[\n\\bigcap_{i\\in I} A_i\n\\]",union:"\\[\n\\bigcup_{i\\in I} A_i\n\\]"};
   const value=templates[button.dataset.math]||"",start=textarea.selectionStart,end=textarea.selectionEnd;
-  textarea.setRangeText(value,start,end,"end");textarea.focus();renderMathPreview(textarea);
+  textarea.setRangeText(value,start,end,"end");textarea.focus();autoResizeTextarea(textarea);renderMathPreview(textarea);
 });
-document.addEventListener("input",e=>{if(e.target.matches('#newDefinition,textarea[name="definition"]'))renderMathPreview(e.target)});
+document.addEventListener("input",e=>{
+  if(e.target.matches("textarea"))autoResizeTextarea(e.target);
+  if(e.target.matches('#newDefinition,textarea[name="definition"]'))renderMathPreview(e.target);
+});
+document.querySelectorAll("textarea").forEach(autoResizeTextarea);
 
 const TIMER_TOTAL=25*60;
 let timerLeft=TIMER_TOTAL,timerInterval=null;
