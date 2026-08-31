@@ -81,11 +81,12 @@ button:active{transform:translateY(1px);box-shadow:inset 4px 4px 9px rgba(166,17
 .actions{margin-top:auto;padding-top:24px;display:grid;gap:12px}
 .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
 .card-head .subject-pill{margin-bottom:22px}
-.card-tools{display:none;grid-template-columns:42px 42px;gap:10px}
+.card-tools{display:none;grid-template-columns:42px 42px 42px;gap:10px}
 .main-card.answer-revealed .card-tools{display:grid}
 .card-tool{width:42px;height:42px;padding:0;display:grid;place-items:center;border:0;color:var(--muted);font-size:19px}
 .card-tool.delete-card{font-size:24px;font-weight:400;line-height:1}
 .card-tool.delete-card:hover,.card-tool.delete-card:focus-visible{color:var(--danger)}
+.card-tool.familiarity.active{color:var(--accent2);background:var(--sage)}
 .reveal{border:0;padding:15px 18px;font-weight:800;color:var(--accent)}
 .grade-row{display:none;grid-template-columns:1fr 1fr;gap:12px}
 .grade-row.show{display:grid}
@@ -144,6 +145,17 @@ button:active{transform:translateY(1px);box-shadow:inset 4px 4px 9px rgba(166,17
 select,input,textarea{
  width:100%;border:0;outline:none;padding:12px 14px;border-radius:15px;background:var(--panel)
 }
+.multi-select{position:relative;min-width:0}
+.multi-select-source{display:none}
+.multi-select-toggle{width:100%;min-height:42px;border:0;padding:11px 36px 11px 14px;border-radius:15px;text-align:left;color:var(--text);position:relative;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.multi-select-toggle::after{content:"⌄";position:absolute;right:14px;top:50%;transform:translateY(-55%);color:var(--muted);font-size:18px}
+.multi-select.open .multi-select-toggle::after{transform:translateY(-35%) rotate(180deg)}
+.multi-select-menu{display:none;position:absolute;z-index:50;left:0;right:0;top:calc(100% + 7px);max-height:280px;overflow:auto;padding:9px;border-radius:16px;background:var(--panel);box-shadow:10px 10px 24px rgba(154,161,157,.55),-7px -7px 18px #fff;border:1px solid rgba(255,255,255,.9)}
+.multi-select.open .multi-select-menu{display:grid;gap:3px}
+.multi-select-option{display:flex!important;align-items:flex-start;gap:9px;margin:0!important;padding:8px 9px;border-radius:11px;cursor:pointer;font-size:12px!important;line-height:1.3}
+.multi-select-option:hover{background:rgba(120,141,130,.09)}
+.multi-select-option input{width:auto!important;margin:1px 0 0;flex:none;accent-color:var(--accent2)}
+.multi-select-group{padding:8px 9px 3px;color:var(--accent);font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.04em}
 .subject-checks{display:grid;gap:9px}
 .check{display:flex;align-items:center;gap:9px;font-size:14px}
 .check input{width:auto}
@@ -163,6 +175,7 @@ select,input,textarea{
 .lib-item{cursor:pointer}.lib-item .small-btn{cursor:pointer}
 .badge{padding:6px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
 .badge.open{color:var(--warn)} .badge.learning{color:var(--danger)} .badge.known{color:var(--accent2)} .badge.new{color:var(--accent)}
+.familiarity-toggle{border:0;cursor:pointer}.familiarity-toggle:hover{filter:brightness(.98)}
 .form-grid{display:grid;gap:14px;min-width:0;max-width:100%}.form-grid>*,.form-row>*,.history-inline-editor>*,.history-inline-editor>*>*{min-width:0;max-width:100%}.form-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;min-width:0;max-width:100%}
 @media(max-width:620px){.form-row{grid-template-columns:1fr}}
 textarea{min-height:120px;resize:none;overflow-y:hidden}
@@ -323,8 +336,8 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
             <label class="check"><input type="checkbox" class="subjectFilter" value="Digitaltechnik" checked> Digitaltechnik</label>
             <label class="check"><input type="checkbox" class="subjectFilter" value="Diskrete Mathematik" checked> Diskrete Mathematik</label>
           </div>
-          <label>Предмет — тема</label>
-          <select id="reviewTopic" class="neo-inset"><option value="">Все выбранные предметы и темы</option></select>
+          <label>Темы для тренировки (можно несколько)</label>
+          <div class="multi-select" data-for="reviewTopic"><button class="multi-select-toggle neo-inset" type="button" aria-expanded="false">Все выбранные предметы и темы</button><div class="multi-select-menu"></div><select id="reviewTopic" class="multi-select-source" multiple aria-label="Темы для тренировки"><option value="">Все выбранные предметы и темы</option></select></div>
           <label>Режим</label>
           <select id="modeSelect" class="neo-inset">
             <option value="smart">Умная смесь</option>
@@ -342,6 +355,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
           <div class="card-head">
             <div id="subjectPill" class="subject-pill neo-inset">—</div>
             <div class="card-tools" aria-label="Действия с карточкой">
+              <button id="familiarCurrentBtn" class="card-tool familiarity neo" title="Пометить как знакомую" aria-label="Пометить карточку как знакомую">✓</button>
               <button id="editCurrentBtn" class="card-tool neo" title="Редактировать" aria-label="Редактировать карточку">✎</button>
               <button id="deleteCurrentBtn" class="card-tool neo delete-card" title="Удалить" aria-label="Удалить карточку">×</button>
             </div>
@@ -392,7 +406,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
           <option>Digitaltechnik</option>
           <option>Diskrete Mathematik</option>
         </select>
-        <select id="libraryTopic" class="neo-inset"><option value="">Все темы</option></select>
+        <div class="multi-select" data-for="libraryTopic"><button class="multi-select-toggle neo-inset" type="button" aria-expanded="false">Все темы</button><div class="multi-select-menu"></div><select id="libraryTopic" class="multi-select-source" multiple aria-label="Темы библиотеки"><option value="">Все темы</option></select></div>
       </div>
       <div id="cardList" class="card-list"></div>
       <button id="showMoreCards" class="show-more neo" type="button">Показать ещё</button>
@@ -590,25 +604,70 @@ function dateKey(ts=Date.now()){ return new Date(ts).toISOString().slice(0,10); 
 function session(){ const k=dateKey(); return state.sessions[k]||(state.sessions[k]={reviews:0,good:0,again:0}); }
 
 function selectedSubjects(){ return [...document.querySelectorAll(".subjectFilter:checked")].map(x=>x.value); }
+function selectedValues(select){
+  return [...select.selectedOptions].map(option=>option.value).filter(Boolean);
+}
+function renderMultiSelect(select){
+  const root=document.querySelector(`.multi-select[data-for="${select.id}"]`);
+  if(!root)return;
+  root.onclick=e=>e.stopPropagation();
+  const button=root.querySelector(".multi-select-toggle"),menu=root.querySelector(".multi-select-menu");
+  menu.innerHTML="";
+  let previousGroup=null;
+  [...select.options].forEach(option=>{
+    const group=option.parentElement.tagName==="OPTGROUP"?option.parentElement.label:"";
+    if(group&&group!==previousGroup){
+      const heading=document.createElement("div");heading.className="multi-select-group";heading.textContent=group;menu.appendChild(heading);
+    }
+    previousGroup=group;
+    const label=document.createElement("label");label.className="multi-select-option";
+    const checkbox=document.createElement("input");checkbox.type="checkbox";checkbox.checked=option.selected;
+    const text=document.createElement("span");text.textContent=option.textContent;
+    label.append(checkbox,text);menu.appendChild(label);
+    checkbox.onchange=()=>{
+      if(!option.value&&checkbox.checked){
+        [...select.options].forEach(item=>item.selected=false);option.selected=true;
+      }else{
+        option.selected=checkbox.checked;
+        const allOption=[...select.options].find(item=>!item.value);
+        if(allOption)allOption.selected=selectedValues(select).length===0;
+      }
+      renderMultiSelect(select);
+      root.classList.add("open");button.setAttribute("aria-expanded","true");
+      select.dispatchEvent(new Event("change",{bubbles:true}));
+    };
+  });
+  const chosen=[...select.selectedOptions].filter(option=>option.value);
+  button.textContent=chosen.length===0
+    ?([...select.options].find(option=>!option.value)?.textContent||"Все темы")
+    :(chosen.length===1?chosen[0].textContent:`Выбрано тем: ${chosen.length}`);
+  button.onclick=()=>{
+    const open=!root.classList.contains("open");
+    document.querySelectorAll(".multi-select.open").forEach(item=>{item.classList.remove("open");item.querySelector(".multi-select-toggle").setAttribute("aria-expanded","false")});
+    root.classList.toggle("open",open);button.setAttribute("aria-expanded",String(open));
+  };
+}
 function eligibleCards(){
   const subs=selectedSubjects(), mode=document.getElementById("modeSelect").value;
-  const scope=document.getElementById("reviewTopic").value;
-  const [scopeSubject,scopeTopic]=scope?scope.split("|||",2):["",""];
-  let arr=state.cards.filter(c=>(scope?(c.subject===scopeSubject&&c.topic===scopeTopic):subs.includes(c.subject))&&c.definition.trim());
+  const scopes=selectedValues(document.getElementById("reviewTopic"));
+  const selectedTopics=new Set(scopes);
+  let arr=state.cards.filter(c=>(scopes.length
+    ?selectedTopics.has(c.subject+"|||"+c.topic)
+    :subs.includes(c.subject))&&c.definition.trim());
   if(mode==="weak"){
-    arr=arr.filter(c=>c.reviews===0 || c.lapses>0 || c.streak<2 || c.dueAt<=now());
+    arr=arr.filter(c=>!c.manualFamiliar&&(c.reviews===0 || c.lapses>0 || c.streak<2 || c.dueAt<=now()));
   }
   return arr;
 }
 function weight(c,mode){
   if(mode==="random") return 1;
   const due=c.dueAt<=now();
-  if(c.reviews===0) return 5;
-  let w=due ? 2.2 : 0.18;                  // even mastered cards remain possible
+  let w=c.reviews===0 ? 5 : (due ? 2.2 : 0.18); // even mastered cards remain possible
   w += Math.min(5,c.lapses)*1.25;          // forgotten cards return more often
   w += c.streak===0 ? 1.6 : c.streak===1 ? .8 : 0;
-  if(c.correct/c.reviews < .65) w += 2;
+  if(c.reviews>0&&c.correct/c.reviews < .65) w += 2;
   if(c.intervalDays>=14) w *= .65;
+  if(c.manualFamiliar) w *= .18;
   if(mode==="weak") w += 2;
   return Math.max(.08,w);
 }
@@ -695,6 +754,7 @@ function renderEmpty(){
   document.getElementById("answer").innerHTML="";
   document.getElementById("revealBtn").style.display="none";
   document.getElementById("editCurrentBtn").style.display="none";
+  document.getElementById("familiarCurrentBtn").style.display="none";
   document.getElementById("deleteCurrentBtn").style.display="none";
   document.getElementById("gradeRow").classList.remove("show");
 }
@@ -704,6 +764,11 @@ function renderCard(){
   document.querySelector(".main-card").classList.remove("answer-revealed");
   document.getElementById("revealBtn").style.display="";
   document.getElementById("editCurrentBtn").style.display="";
+  const familiarButton=document.getElementById("familiarCurrentBtn");
+  familiarButton.style.display="";
+  familiarButton.classList.toggle("active",Boolean(current.manualFamiliar));
+  familiarButton.title=current.manualFamiliar?"Убрать отметку «Знакома»":"Пометить как знакомую";
+  familiarButton.setAttribute("aria-label",familiarButton.title);
   document.getElementById("deleteCurrentBtn").style.display="";
   document.getElementById("subjectPill").textContent=current.subject;
   document.getElementById("term").textContent=current.term;
@@ -739,6 +804,7 @@ function grade(good){
     c.intervalDays=seq[Math.min(c.streak-1,seq.length-1)];
     c.dueAt=now()+c.intervalDays*DAY;
   }else{
+    c.manualFamiliar=false;
     c.lapses++; c.streak=0; s.again++;
     c.intervalDays=0;
     c.dueAt=now()+10*60*1000;
@@ -749,13 +815,6 @@ function grade(good){
   save(); pickCard();
 }
 function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])); }
-function formatInlineMathIndices(text){
-  let html=escapeHtml(text);
-  html=html.replace(/\b([A-Za-z])(\d+)\b/g,"$1<sub>$2</sub>");
-  const wordsWithoutIndex=new Set(["An","Am","Im","In","Es"]);
-  html=html.replace(/\b([A-Z])([ijknmrst])\b/g,(match,base,index)=>wordsWithoutIndex.has(match)?match:`${base}<sub>${index}</sub>`);
-  return html;
-}
 function formatProse(text){
   const lines=String(text||"").replace(/\s*•\s*/g,"\n• ").replace(/\r\n?/g,"\n").split("\n");
   let html="",listType="";
@@ -766,8 +825,8 @@ function formatProse(text){
     const bullet=line.match(/^[•*\-]\s*(.+)$/),numbered=line.match(/^\d+[.)]\s+(.+)$/);
     if(bullet||numbered){
       const type=numbered?"ol":"ul";if(listType!==type){closeList();html+=`<${type}>`;listType=type}
-      html+=`<li>${formatInlineMathIndices((bullet||numbered)[1])}</li>`;
-    }else{closeList();html+=`<p>${formatInlineMathIndices(line)}</p>`}
+      html+=`<li>${escapeHtml((bullet||numbered)[1])}</li>`;
+    }else{closeList();html+=`<p>${escapeHtml(line)}</p>`}
   }
   closeList();return html;
 }
@@ -800,6 +859,7 @@ function renderMathPreview(textarea){
 
 function statusOf(c){
   if(!c.definition.trim()) return ["Нужно заполнить","open"];
+  if(c.manualFamiliar) return ["Знакома ✓","known"];
   if(c.reviews===0) return ["Новая","new"];
   if(c.streak>=2 && c.correct/c.reviews>=.7) return ["Знакома","known"];
   return ["Повторить","learning"];
@@ -809,8 +869,8 @@ function updateStats(){
   document.getElementById("todayReviews").textContent=s.reviews||0;
   document.getElementById("todayGood").textContent=s.good||0;
   const active=state.cards.filter(c=>c.definition.trim());
-  const known=active.filter(c=>c.streak>=2 && c.correct/Math.max(1,c.reviews)>=.7).length;
-  const weak=active.filter(c=>c.reviews===0 || c.streak<2 || c.correct/Math.max(1,c.reviews)<.7).length;
+  const known=active.filter(c=>c.manualFamiliar||(c.streak>=2 && c.correct/Math.max(1,c.reviews)>=.7)).length;
+  const weak=active.filter(c=>!c.manualFamiliar&&(c.reviews===0 || c.streak<2 || c.correct/Math.max(1,c.reviews)<.7)).length;
   document.getElementById("weakCount").textContent=weak;
   document.getElementById("knownCount").textContent=known;
   const pct=active.length?Math.round(known/active.length*100):0;
@@ -826,9 +886,9 @@ function renderLibrary(resetLimit=false){
   if(resetLimit)libraryVisible=10;
   const q=document.getElementById("searchInput").value.trim().toLowerCase();
   const sub=document.getElementById("librarySubject").value;
-  const topic=document.getElementById("libraryTopic").value;
+  const topics=selectedValues(document.getElementById("libraryTopic"));
   const list=state.cards
-    .filter(c=>(!sub||c.subject===sub)&&(!topic||c.topic===topic)&&(!q||(c.term+" "+c.question+" "+c.definition).toLowerCase().includes(q)))
+    .filter(c=>(!sub||c.subject===sub)&&(!topics.length||topics.includes(c.topic))&&(!q||(c.term+" "+c.question+" "+c.definition).toLowerCase().includes(q)))
     .sort((a,b)=>a.subject.localeCompare(b.subject,"de")||
       (a.topic||"").localeCompare(b.topic||"","de")||
       (a.term||"").localeCompare(b.term||"","de"));
@@ -848,7 +908,7 @@ function renderLibrary(resetLimit=false){
     return `${heading}<div class="lib-item neo-inset" role="button" tabindex="0" aria-expanded="false">
       <div><h3>${escapeHtml(c.term)}</h3><p>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Без темы")} · ${c.reviews} повторений · ${c.correct} удачных</p></div>
       <div style="display:flex;gap:8px;align-items:center">
-        <span class="badge ${cls} neo">${txt}</span>
+        <button class="badge ${cls} neo familiarity-toggle" data-id="${c.id}" title="Изменить отметку знакомости">${txt}</button>
         <button class="small-btn neo editCard" data-id="${c.id}">✎</button>
         <button class="small-btn neo delete-card" data-id="${c.id}" title="Удалить карточку" aria-label="Удалить карточку ${escapeHtml(c.term)}">&times;</button>
       </div>
@@ -860,27 +920,32 @@ function renderLibrary(resetLimit=false){
     if(expanded&&!detail.dataset.typeset){typesetMath([detail]);detail.dataset.typeset="true"}
   };
   document.querySelectorAll(".lib-item").forEach(item=>{
-    item.onclick=e=>{if(e.target.closest(".editCard,.delete-card"))return;toggleLibraryCard(item)};
+    item.onclick=e=>{if(e.target.closest(".editCard,.delete-card,.familiarity-toggle"))return;toggleLibraryCard(item)};
     item.onkeydown=e=>{if((e.key==="Enter"||e.key===" ")&&!e.target.closest("button")){e.preventDefault();toggleLibraryCard(item)}};
   });
   document.querySelectorAll(".editCard").forEach(b=>b.onclick=()=>openEdit(b.dataset.id));
   document.querySelectorAll(".delete-card").forEach(b=>b.onclick=()=>deleteCard(b.dataset.id));
+  document.querySelectorAll(".familiarity-toggle").forEach(b=>b.onclick=()=>toggleFamiliar(b.dataset.id));
 }
 function fillTopicSelect(select,subjects){
-  const previous=select.value;
+  const previous=new Set(selectedValues(select));
   const topics=[...new Set(state.cards.filter(c=>!subjects.length||subjects.includes(c.subject)).map(c=>c.topic||"Без темы"))];
   select.innerHTML='<option value="">Все темы</option>'+topics.map(topic=>`<option>${escapeHtml(topic)}</option>`).join("");
-  if(topics.includes(previous))select.value=previous;
+  [...select.options].forEach(option=>option.selected=previous.has(option.value));
+  if(!selectedValues(select).length)select.options[0].selected=true;
+  renderMultiSelect(select);
 }
 function fillReviewTopicSelect(){
-  const select=document.getElementById("reviewTopic"),previous=select.value,subjects=selectedSubjects();
+  const select=document.getElementById("reviewTopic"),previous=new Set(selectedValues(select)),subjects=selectedSubjects();
   let html='<option value="">Все выбранные предметы и темы</option>';
   for(const subject of subjects){
     const topics=[...new Set(state.cards.filter(c=>c.subject===subject).map(c=>c.topic||"Без темы"))];
     html+=`<optgroup label="${escapeHtml(subject)}">${topics.map(topic=>`<option value="${escapeHtml(subject+"|||"+topic)}">${escapeHtml(topic)}</option>`).join("")}</optgroup>`;
   }
   select.innerHTML=html;
-  if([...select.options].some(option=>option.value===previous))select.value=previous;
+  [...select.options].forEach(option=>option.selected=previous.has(option.value));
+  if(!selectedValues(select).length)select.options[0].selected=true;
+  renderMultiSelect(select);
 }
 function updateTopicFilters(){
   fillReviewTopicSelect();
@@ -900,6 +965,13 @@ function resolveTopicName(subject,value){
   const existing=state.cards.find(card=>card.subject===subject&&
     (card.topic||"").trim().replace(/\s+/g," ").normalize("NFKC").toLocaleLowerCase("de")===normalized);
   return existing?(existing.topic||"").trim():entered;
+}
+function toggleFamiliar(id){
+  const card=state.cards.find(item=>item.id===id);if(!card)return;
+  card.manualFamiliar=!card.manualFamiliar;
+  save();renderLibrary();
+  if(current&&current.id===id)renderCard();
+  toast(card.manualFamiliar?"Карточка помечена как знакомая":"Отметка «Знакома» снята");
 }
 function deleteCard(id){
   const c=state.cards.find(x=>x.id===id); if(!c)return;
@@ -955,6 +1027,7 @@ document.getElementById("revealBtn").onclick=reveal;
 document.getElementById("againBtn").onclick=()=>grade(false);
 document.getElementById("goodBtn").onclick=()=>grade(true);
 document.getElementById("editCurrentBtn").onclick=()=>current&&openEdit(current.id,"review");
+document.getElementById("familiarCurrentBtn").onclick=()=>current&&toggleFamiliar(current.id);
 document.getElementById("deleteCurrentBtn").onclick=()=>current&&deleteCard(current.id);
 document.getElementById("skipBtn").onclick=pickCard;
 document.querySelectorAll(".subjectFilter").forEach(x=>x.onchange=()=>{updateTopicFilters();pickCard()});
@@ -964,6 +1037,12 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>setView(t.dataset.vie
 document.getElementById("searchInput").oninput=()=>renderLibrary(true);
 document.getElementById("librarySubject").onchange=()=>{updateTopicFilters();renderLibrary(true)};
 document.getElementById("libraryTopic").onchange=()=>renderLibrary(true);
+document.addEventListener("click",e=>{
+  if(e.target.closest(".multi-select"))return;
+  document.querySelectorAll(".multi-select.open").forEach(item=>{
+    item.classList.remove("open");item.querySelector(".multi-select-toggle").setAttribute("aria-expanded","false");
+  });
+});
 document.getElementById("newSubject").onchange=()=>{
   document.getElementById("newTopic").value="";
   updateTopicFilters();
@@ -1078,7 +1157,7 @@ document.getElementById("cardForm").onsubmit=e=>{
   if(id){
     const c=state.cards.find(x=>x.id===id); Object.assign(c,data);
   }else{
-    state.cards.push({...data,id:"custom_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),custom:true,reviews:0,correct:0,lapses:0,streak:0,intervalDays:0,dueAt:0,lastReviewed:0});
+    state.cards.push({...data,id:"custom_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),custom:true,manualFamiliar:false,reviews:0,correct:0,lapses:0,streak:0,intervalDays:0,dueAt:0,lastReviewed:0});
   }
   const target=id?editReturnView:"library";
   save();clearForm();updateTopicFilters();toast("Карточка сохранена");setView(target);
@@ -1097,7 +1176,7 @@ document.getElementById("importFile").onchange=async e=>{
 };
 document.getElementById("resetBtn").onclick=()=>{
   if(confirm("Сбросить весь прогресс? Добавленные вручную карточки сохранятся.")){
-    const custom=state.cards.filter(c=>c.custom).map(c=>({...c,reviews:0,correct:0,lapses:0,streak:0,intervalDays:0,dueAt:0,lastReviewed:0}));
+    const custom=state.cards.filter(c=>c.custom).map(c=>({...c,manualFamiliar:false,reviews:0,correct:0,lapses:0,streak:0,intervalDays:0,dueAt:0,lastReviewed:0}));
     state={cards:[...defaults.filter(c=>!(state.deletedIds||[]).includes(c.id)),...custom],sessions:{},deletedIds:state.deletedIds||[],history:[]};save();renderLibrary();pickCard();toast("Прогресс сброшен");
   }
 };
