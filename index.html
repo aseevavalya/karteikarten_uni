@@ -16,8 +16,8 @@ window.MathJax={
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-svg.js"></script>
 <style>
 :root{
-  --bg:#eef0ed; --panel:#f6f7f4; --text:#29313a; --muted:#7b8083;
-  --shadow-dark:#c9ceca; --shadow-light:#ffffff;
+  --bg:#f1f1ef; --panel:#f8f8f6; --text:#29313a; --muted:#7b8083;
+  --shadow-dark:#d0d0cd; --shadow-light:#ffffff;
   --accent:#788d82; --accent2:#879c91; --danger:#ae756b; --warn:#aa895f;
   --sage:#c3cec7; --sage-deep:#aabbb1; --terracotta:#d8bcb5; --mustard:#d8c4a1; --slate:#29313a;
   --radius:24px;
@@ -418,7 +418,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
           </select></div>
           <div><label>Термин</label><input id="newTerm" class="neo-inset" required placeholder="Например: Master-Theorem"></div>
         </div>
-        <div><label>Тема</label><input id="newTopic" class="neo-inset" required placeholder="Например: Rekursion, Terminierung und Aufwand"></div>
+        <div><label>Тема</label><input id="newTopic" class="neo-inset" list="existingTopicOptions" required placeholder="Выберите существующую или введите новую"><datalist id="existingTopicOptions"></datalist></div>
         <div><label>Типичная экзаменационная формулировка</label><input id="newQuestion" class="neo-inset" placeholder="Например: Definieren Sie …"></div>
         <div><label>Определение</label><textarea id="newDefinition" class="neo-inset" required placeholder="Краткое точное определение на немецком"></textarea><span class="math-help">Формулы: \(x^2\) внутри строки или \[\frac{a}{b}\] отдельной строкой</span><div class="math-toolbar"><button type="button" class="math-insert neo" data-math="inline">x²</button><button type="button" class="math-insert neo" data-math="fraction">a/b</button><button type="button" class="math-insert neo" data-math="sum">Σ</button><button type="button" class="math-insert neo" data-math="set">{x∈X}</button><button type="button" class="math-insert neo" data-math="intersection">⋂</button><button type="button" class="math-insert neo" data-math="union">⋃</button></div><div class="math-preview neo-inset"></div></div>
         <div><label>Заметка / Merksatz</label><textarea id="newNote" class="neo-inset" style="min-height:80px" placeholder="Необязательно"></textarea></div>
@@ -648,7 +648,7 @@ function renderHistory(){
     const when=new Date(item.ts).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
     const card=state.cards.find(c=>c.id===item.id),question=item.question||(card&&card.question)||"",definition=item.definition||(card&&card.definition)||"Карточка была удалена, сохранённого ответа нет.",note=item.note||(card&&card.note)||"";
     const subjectOptions=card?["Algorithmen & Programmierung","Digitaltechnik","Diskrete Mathematik"].map(subject=>`<option ${subject===card.subject?"selected":""}>${escapeHtml(subject)}</option>`).join(""):"";
-    const editor=card?`<form class="history-inline-editor neo-inset" data-card-id="${escapeHtml(card.id)}"><div><label>Предмет</label><select name="subject" class="neo-inset">${subjectOptions}</select></div><div><label>Тема</label><input name="topic" class="neo-inset" required value="${escapeHtml(card.topic||"Eigene Karten")}"></div><div><label>Термин</label><input name="term" class="neo-inset" required value="${escapeHtml(card.term)}"></div><div><label>Вопрос</label><textarea name="question" class="neo-inset">${escapeHtml(card.question||"")}</textarea></div><div><label>Определение</label><textarea name="definition" class="neo-inset" required>${escapeHtml(card.definition||"")}</textarea><span class="math-help">Формулы: \\(x^2\\) или \\[\\frac{a}{b}\\]</span>${mathEditorTools()}</div><div><label>Заметка</label><textarea name="note" class="neo-inset">${escapeHtml(card.note||"")}</textarea></div><div class="history-edit-actions"><button type="submit" class="history-save neo">Сохранить</button><button type="button" class="history-edit-cancel neo">Отмена</button></div></form>`:"";
+    const editor=card?`<form class="history-inline-editor neo-inset" data-card-id="${escapeHtml(card.id)}"><div><label>Предмет</label><select name="subject" class="neo-inset">${subjectOptions}</select></div><div><label>Тема</label><input name="topic" class="neo-inset" list="existingTopicOptions" required value="${escapeHtml(card.topic||"Eigene Karten")}"></div><div><label>Термин</label><input name="term" class="neo-inset" required value="${escapeHtml(card.term)}"></div><div><label>Вопрос</label><textarea name="question" class="neo-inset">${escapeHtml(card.question||"")}</textarea></div><div><label>Определение</label><textarea name="definition" class="neo-inset" required>${escapeHtml(card.definition||"")}</textarea><span class="math-help">Формулы: \\(x^2\\) или \\[\\frac{a}{b}\\]</span>${mathEditorTools()}</div><div><label>Заметка</label><textarea name="note" class="neo-inset">${escapeHtml(card.note||"")}</textarea></div><div class="history-edit-actions"><button type="submit" class="history-save neo">Сохранить</button><button type="button" class="history-edit-cancel neo">Отмена</button></div></form>`:"";
     return `<div class="history-item neo-inset" data-history-index="${index}"><button class="history-main" aria-expanded="false"><div><b>${escapeHtml(item.term)}</b><span>${escapeHtml(item.subject)}${item.topic?` · ${escapeHtml(item.topic)}`:""} · ${when}</span></div><div class="history-result ${item.good?"good":"bad"}">${item.good?"Вспомнила":"Повторить"}</div></button><div class="history-detail"><div class="history-question card-copy">${formatCardText(question)}</div><div class="history-answer card-copy">${formatCardText(definition)}</div>${note?`<div class="history-note card-copy">${formatCardText(note)}</div>`:""}<button class="history-edit neo" data-card-id="${escapeHtml(item.id)}" ${card?"":"disabled"}>${card?"Редактировать карточку":"Карточка удалена"}</button>${editor}</div></div>`;
   }).join("");
   typesetMath([el]);
@@ -881,6 +881,12 @@ function updateTopicFilters(){
   fillReviewTopicSelect();
   const subject=document.getElementById("librarySubject").value;
   fillTopicSelect(document.getElementById("libraryTopic"),subject?[subject]:[]);
+  const topicOptions=document.getElementById("existingTopicOptions");
+  if(topicOptions){
+    const topics=[...new Set(state.cards.map(card=>(card.topic||"").trim()).filter(Boolean))]
+      .sort((a,b)=>a.localeCompare(b,"de"));
+    topicOptions.innerHTML=topics.map(topic=>`<option value="${escapeHtml(topic)}"></option>`).join("");
+  }
 }
 function deleteCard(id){
   const c=state.cards.find(x=>x.id===id); if(!c)return;
