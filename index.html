@@ -73,7 +73,8 @@ button:active{transform:translateY(1px);box-shadow:inset 4px 4px 9px rgba(166,17
 .card-copy p{margin:0 0 .85em}.card-copy p:last-child{margin-bottom:0}.card-copy ul,.card-copy ol{margin:.7em 0 .9em;padding-left:1.45em}.card-copy li{margin:.42em 0;padding-left:.2em}.card-copy li::marker{color:var(--accent2);font-weight:800}.math-block{text-align:center;margin:.7em 0}
 .card-copy sub,.history-question sub{font-size:.68em;line-height:0;vertical-align:-.28em;margin-left:.02em}
 .math-help{display:block;margin-top:6px;color:var(--muted);font-size:11px}
-.math-toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.math-insert{border:1px solid rgba(255,255,255,.88);padding:7px 10px;border-radius:13px;font-family:"Cambria Math","STIX Two Math",serif;font-weight:700}
+.card-copy strong{font-weight:800;color:inherit}
+.math-toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.math-insert,.format-insert{border:1px solid rgba(255,255,255,.88);padding:7px 10px;border-radius:13px;font-family:"Cambria Math","STIX Two Math",serif;font-weight:700}
 .math-preview{display:none;width:100%;max-width:100%;min-width:0;margin-top:12px;padding:14px 16px;border-radius:17px;line-height:1.55;overflow:hidden;overflow-wrap:anywhere;word-break:break-word}.math-preview.has-content{display:block}.math-preview::before{content:"Предпросмотр";display:block;margin-bottom:8px;color:var(--muted);font:700 11px "Segoe UI Variable Text","Segoe UI",sans-serif}
 .math-preview mjx-container,.card-copy mjx-container{width:100%;max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
 .math-preview mjx-container svg,.card-copy mjx-container svg{max-width:none}
@@ -166,11 +167,13 @@ select,input,textarea{
 .lib-toolbar{display:grid;grid-template-columns:1fr 220px 220px;gap:12px;margin-bottom:18px}
 @media(max-width:620px){.lib-toolbar{grid-template-columns:1fr}}
 .card-list{display:grid;gap:12px;max-height:66vh;overflow:auto;padding:3px 8px 8px 3px}
+.topic-group{display:grid;gap:12px}.topic-group.dragging,.lib-item.dragging{opacity:.48}.topic-group.drag-over,.lib-item.drag-over{outline:2px dashed var(--accent2);outline-offset:4px;border-radius:16px}
+.topic-heading-row{cursor:default}.drag-handle{border:0;width:32px;height:32px;padding:0;display:grid;place-items:center;flex:0 0 32px;color:var(--muted);cursor:grab;touch-action:none;user-select:none;font-size:18px;line-height:1}.drag-handle:active{cursor:grabbing}.card-drag-handle{align-self:center}
 .topic-heading-row{margin:15px 5px 2px;display:flex;align-items:center;gap:8px}
 .topic-heading-row:first-child{margin-top:2px}
 .topic-heading{margin:0;font-size:15px;color:var(--accent);letter-spacing:.01em}
 .rename-topic{width:28px;height:28px;padding:0;border:0;border-radius:10px;color:var(--muted);display:grid;place-items:center;font-size:13px}
-.lib-item{padding:16px 17px;border-radius:18px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.lib-item{padding:16px 17px;border-radius:18px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center}
 .lib-item h3{margin:0 0 5px;font-size:16px}.lib-item p{margin:0;color:var(--muted);font-size:13px}
 .lib-detail{display:none;grid-column:1/-1;margin-top:3px;padding:17px 18px;border-radius:18px;line-height:1.58}.lib-item.expanded .lib-detail{display:block}
 .lib-question{color:var(--muted);margin-bottom:11px}.lib-answer{color:var(--text)}.lib-note{color:var(--muted);font-size:12px;margin-top:11px}
@@ -260,7 +263,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
   .topbar>.timer{display:block;width:48px;height:48px;margin-left:auto;padding:0;border-radius:50%;flex:0 0 48px;overflow:visible;cursor:pointer;box-shadow:7px 7px 15px rgba(166,172,168,.55),-6px -6px 14px #fff}.topbar>.timer+.menu-toggle{margin-left:0}.topbar>.timer h2,.topbar>.timer .timer-actions{display:none}.topbar>.timer .timer-face{width:48px;height:48px;margin:0;box-shadow:none}.topbar>.timer .timer-face::after{inset:5px}.topbar>.timer .timer-value b{font-size:11px;letter-spacing:-.03em}.topbar>.timer .timer-value span{display:none}.topbar>.timer.timer-running{box-shadow:0 0 0 3px rgba(120,141,130,.2),7px 7px 15px rgba(166,172,168,.55),-6px -6px 14px #fff}
   .goal{padding:13px 18px 14px;border-radius:24px;box-shadow:0 10px 30px rgba(41,49,58,.14),-5px -5px 15px rgba(255,255,255,.9),inset 1px 1px 1px rgba(255,255,255,.8)}.goal h2{font-size:15px;margin-bottom:3px}.goal-grid{display:flex;align-items:end;justify-content:space-between;margin-bottom:9px}.goal-stat{padding:0;border:0;box-shadow:none;background:transparent}.goal-stat:first-child{display:none}.goal-stat:nth-child(2) b{display:inline;font-size:16px;color:var(--accent2)}.goal-stat:nth-child(2) span{font-size:12px;margin-left:4px}.goal-stat:nth-child(3){text-align:right}.goal-stat:nth-child(3) b{font-size:27px;color:var(--accent2);line-height:1}.goal-stat:nth-child(3) span{display:inline;font-size:10px;margin-left:4px}.goal .progress{height:7px}
   .subject-pill{padding:6px 10px;font-size:12px}.card-head .subject-pill{margin-bottom:18px}.term{font-size:28px;margin-bottom:10px;overflow-wrap:anywhere}.question{font-size:15px;margin-bottom:14px}.answer{font-size:16px;padding:0;margin-top:16px;background:transparent;border:0;border-radius:0;box-shadow:none;max-width:100%}.answer.show{padding-top:16px;border-top:1px solid rgba(123,128,131,.16)}.card-meta{font-size:11px}.main-card .actions{gap:12px;padding-top:18px}.main-card:not(.answer-revealed) .actions{margin-top:auto}.main-card .reveal,.main-card .grade{padding:15px 9px;font-size:13px}.main-card .grade-row{gap:10px}.card-tool{width:40px;height:40px}.hint{display:none}
-  .library,.editor{padding:16px;width:100%;min-width:0;max-width:100%;overflow:hidden}.lib-toolbar{gap:9px}.card-list{max-height:none;overflow:visible;padding:2px;min-width:0}.lib-item{grid-template-columns:minmax(0,1fr);padding:14px;gap:10px;max-width:100%;min-width:0;overflow:hidden}.lib-item>div:first-child{min-width:0}.lib-item h3,.lib-item p,.lib-detail{overflow-wrap:anywhere;word-break:break-word}.lib-item>div:nth-child(2){width:100%;justify-content:flex-end;flex-wrap:nowrap;gap:7px!important}.lib-item>div:nth-child(2) .badge{margin-right:auto}.lib-item>div:nth-child(2) .small-btn{width:32px;height:32px;flex:0 0 32px;padding:0;border-radius:12px;display:grid;place-items:center;line-height:1}.lib-item>div:nth-child(2) .editCard{font-size:16px}.lib-item>div:nth-child(2) .delete-card{font-size:21px;font-weight:400}.lib-detail{grid-column:1;padding:14px;min-width:0;max-width:100%;overflow:hidden}.card-copy{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word}.card-copy *{max-width:100%}.card-copy img,.card-copy svg{max-width:100%;height:auto}.card-copy pre{max-width:100%;overflow-x:auto}.show-more.visible{display:block}.footer-actions .secondary{flex:1 1 140px}
+  .library,.editor{padding:16px;width:100%;min-width:0;max-width:100%;overflow:hidden}.lib-toolbar{gap:9px}.card-list{max-height:none;overflow:visible;padding:2px;min-width:0}.lib-item{grid-template-columns:32px minmax(0,1fr);padding:14px;gap:10px;max-width:100%;min-width:0;overflow:hidden}.lib-item>div:first-of-type{min-width:0}.lib-item h3,.lib-item p,.lib-detail{overflow-wrap:anywhere;word-break:break-word}.lib-item>div:nth-child(3){grid-column:1/-1;width:100%;justify-content:flex-end;flex-wrap:nowrap;gap:7px!important}.lib-item>div:nth-child(3) .badge{margin-right:auto}.lib-item>div:nth-child(3) .small-btn{width:32px;height:32px;flex:0 0 32px;padding:0;border-radius:12px;display:grid;place-items:center;line-height:1}.lib-item>div:nth-child(3) .editCard{font-size:16px}.lib-item>div:nth-child(3) .delete-card{font-size:21px;font-weight:400}.lib-detail{grid-column:1/-1;padding:14px;min-width:0;max-width:100%;overflow:hidden}.card-copy{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word}.card-copy *{max-width:100%}.card-copy img,.card-copy svg{max-width:100%;height:auto}.card-copy pre{max-width:100%;overflow-x:auto}.show-more.visible{display:block}.footer-actions .secondary{flex:1 1 140px}
   .math-preview mjx-container[display="true"],.card-copy mjx-container[display="true"]{overflow:hidden}
   .math-preview mjx-container[display="true"] svg,.card-copy mjx-container[display="true"] svg{width:auto!important;max-width:100%!important;height:auto!important}
 }
@@ -436,7 +439,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
         </div>
         <div><label>Тема</label><input id="newTopic" class="neo-inset" list="existingTopicOptions" required placeholder="Выберите существующую или введите новую"><datalist id="existingTopicOptions"></datalist></div>
         <div><label>Типичная экзаменационная формулировка</label><input id="newQuestion" class="neo-inset" placeholder="Например: Definieren Sie …"></div>
-        <div><label>Определение</label><textarea id="newDefinition" class="neo-inset" required placeholder="Краткое точное определение на немецком"></textarea><span class="math-help">Формулы: \(x^2\) внутри строки или \[\frac{a}{b}\] отдельной строкой</span><div class="math-toolbar"><button type="button" class="math-insert neo" data-math="inline">x²</button><button type="button" class="math-insert neo" data-math="fraction">a/b</button><button type="button" class="math-insert neo" data-math="sum">Σ</button><button type="button" class="math-insert neo" data-math="set">{x∈X}</button><button type="button" class="math-insert neo" data-math="intersection">⋂</button><button type="button" class="math-insert neo" data-math="union">⋃</button></div><div class="math-preview neo-inset"></div></div>
+        <div><label>Определение</label><textarea id="newDefinition" class="neo-inset" required placeholder="Краткое точное определение на немецком"></textarea><span class="math-help">Жирный текст: **текст**. Формулы: \(x^2\) внутри строки или \[\frac{a}{b}\] отдельной строкой</span><div class="math-toolbar"><button type="button" class="format-insert neo" data-format="bold" title="Жирный текст"><strong>B</strong></button><button type="button" class="math-insert neo" data-math="inline">x²</button><button type="button" class="math-insert neo" data-math="fraction">a/b</button><button type="button" class="math-insert neo" data-math="sum">Σ</button><button type="button" class="math-insert neo" data-math="set">{x∈X}</button><button type="button" class="math-insert neo" data-math="intersection">⋂</button><button type="button" class="math-insert neo" data-math="union">⋃</button></div><div class="math-preview neo-inset"></div></div>
         <div><label>Заметка / Merksatz</label><textarea id="newNote" class="neo-inset" style="min-height:80px" placeholder="Необязательно"></textarea></div>
         <div class="footer-actions">
           <button class="primary neo" type="submit">Сохранить карточку</button>
@@ -500,7 +503,7 @@ let cloudUser=null;
 let cloudSaveTimer=null;
 let cloudWriteInProgress=false;
 
-function emptyState(){ return {cards:defaults,sessions:{},deletedIds:[],history:[]}; }
+function emptyState(){ return {cards:defaults,sessions:{},deletedIds:[],history:[],libraryOrder:{topics:{},cards:{}}}; }
 function normalizeState(saved){
   if(!saved || !Array.isArray(saved.cards)) return emptyState();
   (saved.cards||[]).forEach(sanitizeCard);
@@ -509,7 +512,8 @@ function normalizeState(saved){
   const byId=new Map((saved.cards||[]).map(c=>[c.id,c]));
   const merged=defaults.filter(d=>!deletedIds.includes(d.id)).map(d=>({...d,...(byId.get(d.id)||{})}));
   const custom=(saved.cards||[]).filter(c=>c.custom && !merged.some(m=>m.id===c.id));
-  return {cards:[...merged,...custom],sessions:saved.sessions||{},deletedIds,history:Array.isArray(saved.history)?saved.history:[]};
+  const order=saved.libraryOrder&&typeof saved.libraryOrder==="object"?saved.libraryOrder:{};
+  return {cards:[...merged,...custom],sessions:saved.sessions||{},deletedIds,history:Array.isArray(saved.history)?saved.history:[],libraryOrder:{topics:order.topics||{},cards:order.cards||{}}};
 }
 function loadState(){
   try{ return normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)||"null")); }
@@ -709,7 +713,7 @@ function renderHistory(){
     const when=new Date(item.ts).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
     const card=state.cards.find(c=>c.id===item.id),question=item.question||(card&&card.question)||"",definition=item.definition||(card&&card.definition)||"Карточка была удалена, сохранённого ответа нет.",note=item.note||(card&&card.note)||"";
     const subjectOptions=card?["Algorithmen & Programmierung","Digitaltechnik","Diskrete Mathematik"].map(subject=>`<option ${subject===card.subject?"selected":""}>${escapeHtml(subject)}</option>`).join(""):"";
-    const editor=card?`<form class="history-inline-editor neo-inset" data-card-id="${escapeHtml(card.id)}"><div><label>Предмет</label><select name="subject" class="neo-inset">${subjectOptions}</select></div><div><label>Тема</label><input name="topic" class="neo-inset" list="existingTopicOptions" required value="${escapeHtml(card.topic||"Eigene Karten")}"></div><div><label>Термин</label><input name="term" class="neo-inset" required value="${escapeHtml(card.term)}"></div><div><label>Вопрос</label><textarea name="question" class="neo-inset">${escapeHtml(card.question||"")}</textarea></div><div><label>Определение</label><textarea name="definition" class="neo-inset" required>${escapeHtml(card.definition||"")}</textarea><span class="math-help">Формулы: \\(x^2\\) или \\[\\frac{a}{b}\\]</span>${mathEditorTools()}</div><div><label>Заметка</label><textarea name="note" class="neo-inset">${escapeHtml(card.note||"")}</textarea></div><div class="history-edit-actions"><button type="submit" class="history-save neo">Сохранить</button><button type="button" class="history-edit-cancel neo">Отмена</button></div></form>`:"";
+    const editor=card?`<form class="history-inline-editor neo-inset" data-card-id="${escapeHtml(card.id)}"><div><label>Предмет</label><select name="subject" class="neo-inset">${subjectOptions}</select></div><div><label>Тема</label><input name="topic" class="neo-inset" list="existingTopicOptions" required value="${escapeHtml(card.topic||"Eigene Karten")}"></div><div><label>Термин</label><input name="term" class="neo-inset" required value="${escapeHtml(card.term)}"></div><div><label>Вопрос</label><textarea name="question" class="neo-inset">${escapeHtml(card.question||"")}</textarea></div><div><label>Определение</label><textarea name="definition" class="neo-inset" required>${escapeHtml(card.definition||"")}</textarea><span class="math-help">Жирный текст: **текст**. Формулы: \\(x^2\\) или \\[\\frac{a}{b}\\]</span>${mathEditorTools()}</div><div><label>Заметка</label><textarea name="note" class="neo-inset">${escapeHtml(card.note||"")}</textarea></div><div class="history-edit-actions"><button type="submit" class="history-save neo">Сохранить</button><button type="button" class="history-edit-cancel neo">Отмена</button></div></form>`:"";
     return `<div class="history-item neo-inset" data-history-index="${index}"><button class="history-main" aria-expanded="false"><div><b>${escapeHtml(item.term)}</b><span>${escapeHtml(item.subject)}${item.topic?` · ${escapeHtml(item.topic)}`:""} · ${when}</span></div><div class="history-result ${item.good?"good":"bad"}">${item.good?"Вспомнила":"Повторить"}</div></button><div class="history-detail"><div class="history-question card-copy">${formatCardText(question)}</div><div class="history-answer card-copy">${formatCardText(definition)}</div>${note?`<div class="history-note card-copy">${formatCardText(note)}</div>`:""}<button class="history-edit neo" data-card-id="${escapeHtml(item.id)}" ${card?"":"disabled"}>${card?"Редактировать карточку":"Карточка удалена"}</button>${editor}</div></div>`;
   }).join("");
   typesetMath([el]);
@@ -817,6 +821,9 @@ function grade(good){
   save(); pickCard();
 }
 function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])); }
+function formatInline(text){
+  return escapeHtml(text).replace(/\*\*(\S(?:.*?\S)?)\*\*/g,"<strong>$1</strong>");
+}
 function formatProse(text){
   const lines=String(text||"").replace(/\s*•\s*/g,"\n• ").replace(/\r\n?/g,"\n").split("\n");
   let html="",listType="";
@@ -824,11 +831,11 @@ function formatProse(text){
   for(const raw of lines){
     const line=raw.trim();
     if(!line){closeList();continue}
-    const bullet=line.match(/^[•*\-]\s*(.+)$/),numbered=line.match(/^\d+[.)]\s+(.+)$/);
+    const bullet=line.match(/^[•*\-]\s*(.+)$/),numbered=line.match(/^(\d+)[.)]\s+(.+)$/);
     if(bullet||numbered){
       const type=numbered?"ol":"ul";if(listType!==type){closeList();html+=`<${type}>`;listType=type}
-      html+=`<li>${escapeHtml((bullet||numbered)[1])}</li>`;
-    }else{closeList();html+=`<p>${escapeHtml(line)}</p>`}
+      html+=numbered?`<li value="${numbered[1]}">${formatInline(numbered[2])}</li>`:`<li>${formatInline(bullet[1])}</li>`;
+    }else{closeList();html+=`<p>${formatInline(line)}</p>`}
   }
   closeList();return html;
 }
@@ -842,7 +849,7 @@ function formatCardText(text){
   return html.replace(/@@MATHINLINE(\d+)@@/g,(_,index)=>`<span class="math-inline">${escapeHtml(inlineMath[Number(index)]||"")}</span>`);
 }
 function mathEditorTools(){
-  return '<div class="math-toolbar"><button type="button" class="math-insert neo" data-math="inline">x²</button><button type="button" class="math-insert neo" data-math="fraction">a/b</button><button type="button" class="math-insert neo" data-math="sum">Σ</button><button type="button" class="math-insert neo" data-math="set">{x∈X}</button><button type="button" class="math-insert neo" data-math="intersection">⋂</button><button type="button" class="math-insert neo" data-math="union">⋃</button></div><div class="math-preview neo-inset"></div>';
+  return '<div class="math-toolbar"><button type="button" class="format-insert neo" data-format="bold" title="Жирный текст"><strong>B</strong></button><button type="button" class="math-insert neo" data-math="inline">x²</button><button type="button" class="math-insert neo" data-math="fraction">a/b</button><button type="button" class="math-insert neo" data-math="sum">Σ</button><button type="button" class="math-insert neo" data-math="set">{x∈X}</button><button type="button" class="math-insert neo" data-math="intersection">⋂</button><button type="button" class="math-insert neo" data-math="union">⋃</button></div><div class="math-preview neo-inset"></div>';
 }
 function typesetMath(elements){
   const run=()=>window.MathJax&&MathJax.typesetPromise&&MathJax.typesetPromise(elements).catch(()=>{});
@@ -884,16 +891,80 @@ function updateStats(){
   document.getElementById("goalBar").style.width=goalPct+"%";
 }
 let libraryVisible=10;
+function orderedLibraryCards(cards){
+  const order=state.libraryOrder||(state.libraryOrder={topics:{},cards:{}});
+  order.topics=order.topics||{};order.cards=order.cards||{};
+  const rank=(items,value)=>{const index=(items||[]).indexOf(value);return index<0?Number.MAX_SAFE_INTEGER:index};
+  return [...cards].sort((a,b)=>{
+    const subjectCompare=a.subject.localeCompare(b.subject,"de");if(subjectCompare)return subjectCompare;
+    const aTopic=a.topic||"",bTopic=b.topic||"",topicOrder=order.topics[a.subject]||[];
+    const topicRank=rank(topicOrder,aTopic)-rank(topicOrder,bTopic);
+    if(topicRank)return topicRank;
+    const topicCompare=aTopic.localeCompare(bTopic,"de");if(topicCompare)return topicCompare;
+    const cardOrder=order.cards[a.subject+"|||"+aTopic]||[],cardRank=rank(cardOrder,a.id)-rank(cardOrder,b.id);
+    return cardRank||(a.term||"").localeCompare(b.term||"","de");
+  });
+}
+function mergeVisibleOrder(existing,allValues,visibleValues){
+  const all=new Set(allValues),visible=new Set(visibleValues);
+  const base=[...new Set([...(existing||[]),...allValues])].filter(value=>all.has(value));
+  const slots=[];base.forEach((value,index)=>{if(visible.has(value))slots.push(index)});
+  visibleValues.forEach((value,index)=>{if(index<slots.length)base[slots[index]]=value;else base.push(value)});
+  return [...new Set(base)];
+}
+let libraryDragClickUntil=0;
+function saveLibraryOrderFromDom(){
+  const order=state.libraryOrder||(state.libraryOrder={topics:{},cards:{}});
+  order.topics=order.topics||{};order.cards=order.cards||{};
+  const subjects=[...new Set(state.cards.map(card=>card.subject))];
+  for(const subject of subjects){
+    const allTopics=[...new Set(state.cards.filter(card=>card.subject===subject).map(card=>card.topic||""))];
+    const visibleTopics=[...document.querySelectorAll(`.topic-group[data-subject="${CSS.escape(subject)}"]`)].map(group=>group.dataset.topic);
+    if(visibleTopics.length)order.topics[subject]=mergeVisibleOrder(order.topics[subject],allTopics,visibleTopics);
+  }
+  document.querySelectorAll(".topic-group").forEach(group=>{
+    const key=group.dataset.subject+"|||"+group.dataset.topic;
+    const allIds=state.cards.filter(card=>card.subject===group.dataset.subject&&(card.topic||"")===group.dataset.topic).map(card=>card.id);
+    const visibleIds=[...group.querySelectorAll(":scope > .lib-item")].map(item=>item.dataset.id);
+    if(visibleIds.length)order.cards[key]=mergeVisibleOrder(order.cards[key],allIds,visibleIds);
+  });
+  libraryDragClickUntil=Date.now()+350;save();toast("Порядок сохранён");
+}
+function enableLibraryDragging(){
+  document.querySelectorAll(".drag-handle").forEach(handle=>{
+    handle.onpointerdown=event=>{
+      if(event.button!==undefined&&event.button!==0)return;
+      const kind=handle.dataset.dragKind,item=handle.closest(kind==="topic"?".topic-group":".lib-item");
+      const startX=event.clientX,startY=event.clientY,pointerId=event.pointerId;let active=false;
+      handle.setPointerCapture(pointerId);
+      const move=moveEvent=>{
+        if(!active&&Math.hypot(moveEvent.clientX-startX,moveEvent.clientY-startY)<6)return;
+        active=true;moveEvent.preventDefault();item.classList.add("dragging");
+        const selector=kind==="topic"?".topic-group":".lib-item",target=document.elementFromPoint(moveEvent.clientX,moveEvent.clientY)?.closest(selector);
+        document.querySelectorAll(selector+".drag-over").forEach(node=>node.classList.remove("drag-over"));
+        if(!target||target===item)return;
+        const sameScope=kind==="topic"?target.dataset.subject===item.dataset.subject:target.closest(".topic-group")===item.closest(".topic-group");
+        if(!sameScope)return;
+        target.classList.add("drag-over");
+        const before=moveEvent.clientY<target.getBoundingClientRect().top+target.getBoundingClientRect().height/2;
+        target.parentNode.insertBefore(item,before?target:target.nextSibling);
+      };
+      const end=()=>{
+        handle.removeEventListener("pointermove",move);handle.removeEventListener("pointerup",end);handle.removeEventListener("pointercancel",end);
+        item.classList.remove("dragging");document.querySelectorAll(".drag-over").forEach(node=>node.classList.remove("drag-over"));
+        if(active)saveLibraryOrderFromDom();
+      };
+      handle.addEventListener("pointermove",move);handle.addEventListener("pointerup",end);handle.addEventListener("pointercancel",end);
+    };
+  });
+}
 function renderLibrary(resetLimit=false){
   if(resetLimit)libraryVisible=10;
   const q=document.getElementById("searchInput").value.trim().toLowerCase();
   const sub=document.getElementById("librarySubject").value;
   const topics=selectedValues(document.getElementById("libraryTopic"));
-  const list=state.cards
-    .filter(c=>(!sub||c.subject===sub)&&(!topics.length||topics.includes(c.topic))&&(!q||(c.term+" "+c.question+" "+c.definition).toLowerCase().includes(q)))
-    .sort((a,b)=>a.subject.localeCompare(b.subject,"de")||
-      (a.topic||"").localeCompare(b.topic||"","de")||
-      (a.term||"").localeCompare(b.term||"","de"));
+  const list=orderedLibraryCards(state.cards
+    .filter(c=>(!sub||c.subject===sub)&&(!topics.length||topics.includes(c.topic))&&(!q||(c.term+" "+c.question+" "+c.definition).toLowerCase().includes(q))));
   const el=document.getElementById("cardList");
   const isMobile=window.matchMedia("(max-width:620px)").matches;
   const visibleList=isMobile?list.slice(0,libraryVisible):list;
@@ -901,13 +972,12 @@ function renderLibrary(resetLimit=false){
   showMore.classList.toggle("visible",isMobile&&libraryVisible<list.length);
   showMore.textContent=`Показать ещё (${Math.max(0,list.length-libraryVisible)})`;
   if(!list.length){el.innerHTML='<div class="empty">Ничего не найдено</div>';showMore.classList.remove("visible");return}
-  let previousGroup=null;
-  el.innerHTML=visibleList.map(c=>{
-    const [txt,cls]=statusOf(c);
-    const group=c.subject+"|||"+(c.topic||"");
-    const heading=group!==previousGroup?`<div class="topic-heading-row"><h3 class="topic-heading">${escapeHtml(c.topic||"Без темы")}</h3><button class="rename-topic neo" type="button" data-subject="${escapeHtml(c.subject)}" data-topic="${escapeHtml(c.topic||"")}" title="Переименовать тему" aria-label="Переименовать тему ${escapeHtml(c.topic||"Без темы")}">✎</button></div>`:"";
-    previousGroup=group;
-    return `${heading}<div class="lib-item neo-inset" role="button" tabindex="0" aria-expanded="false">
+  const groups=[];
+  visibleList.forEach(card=>{const key=card.subject+"|||"+(card.topic||"");let group=groups.at(-1);if(!group||group.key!==key){group={key,subject:card.subject,topic:card.topic||"",cards:[]};groups.push(group)}group.cards.push(card)});
+  el.innerHTML=groups.map(group=>`<section class="topic-group" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}">
+    <div class="topic-heading-row"><button class="drag-handle topic-drag-handle neo" type="button" data-drag-kind="topic" title="Перетащить тему" aria-label="Изменить порядок темы">⋮⋮</button><h3 class="topic-heading">${escapeHtml(group.topic||"Без темы")}</h3><button class="rename-topic neo" type="button" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}" title="Переименовать тему" aria-label="Переименовать тему ${escapeHtml(group.topic||"Без темы")}">✎</button></div>
+    ${group.cards.map(c=>{const [txt,cls]=statusOf(c);return `<div class="lib-item neo-inset" data-id="${escapeHtml(c.id)}" role="button" tabindex="0" aria-expanded="false">
+      <button class="drag-handle card-drag-handle neo" type="button" data-drag-kind="card" title="Перетащить карточку" aria-label="Изменить порядок карточки ${escapeHtml(c.term)}">⋮⋮</button>
       <div><h3>${escapeHtml(c.term)}</h3><p>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Без темы")} · ${c.reviews} повторений · ${c.correct} удачных</p></div>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="badge ${cls} neo familiarity-toggle" data-id="${c.id}" title="Изменить отметку знакомости">${txt}</button>
@@ -915,20 +985,21 @@ function renderLibrary(resetLimit=false){
         <button class="small-btn neo delete-card" data-id="${c.id}" title="Удалить карточку" aria-label="Удалить карточку ${escapeHtml(c.term)}">&times;</button>
       </div>
       <div class="lib-detail neo-inset"><div class="lib-question card-copy">${formatCardText(c.question||"")}</div><div class="lib-answer card-copy">${formatCardText(c.definition||"")}</div>${c.note?`<div class="lib-note card-copy">${formatCardText(c.note)}</div>`:""}</div>
-    </div>`
-  }).join("");
+    </div>`}).join("")}
+  </section>`).join("");
   const toggleLibraryCard=item=>{
     const detail=item.querySelector(".lib-detail"),expanded=item.classList.toggle("expanded");item.setAttribute("aria-expanded",String(expanded));
     if(expanded&&!detail.dataset.typeset){typesetMath([detail]);detail.dataset.typeset="true"}
   };
   document.querySelectorAll(".lib-item").forEach(item=>{
-    item.onclick=e=>{if(e.target.closest(".editCard,.delete-card,.familiarity-toggle"))return;toggleLibraryCard(item)};
+    item.onclick=e=>{if(Date.now()<libraryDragClickUntil||e.target.closest(".editCard,.delete-card,.familiarity-toggle,.drag-handle"))return;toggleLibraryCard(item)};
     item.onkeydown=e=>{if((e.key==="Enter"||e.key===" ")&&!e.target.closest("button")){e.preventDefault();toggleLibraryCard(item)}};
   });
   document.querySelectorAll(".editCard").forEach(b=>b.onclick=()=>openEdit(b.dataset.id));
   document.querySelectorAll(".delete-card").forEach(b=>b.onclick=()=>deleteCard(b.dataset.id));
   document.querySelectorAll(".familiarity-toggle").forEach(b=>b.onclick=()=>toggleFamiliar(b.dataset.id));
   document.querySelectorAll(".rename-topic").forEach(b=>b.onclick=()=>renameTopic(b.dataset.subject,b.dataset.topic));
+  enableLibraryDragging();
 }
 function fillTopicSelect(select,subjects){
   const previous=new Set(selectedValues(select));
@@ -988,6 +1059,12 @@ function renameTopic(subject,oldTopic){
   const cardIds=new Set(state.cards.filter(card=>card.subject===subject&&card.topic===oldTopic).map(card=>card.id));
   state.cards.forEach(card=>{if(cardIds.has(card.id))card.topic=newTopic});
   (state.history||[]).forEach(item=>{if(cardIds.has(item.id))item.topic=newTopic});
+  const order=state.libraryOrder;
+  if(order){
+    const topics=order.topics?.[subject];if(topics){const index=topics.indexOf(oldTopic);if(index>=0)topics[index]=newTopic}
+    const oldKey=subject+"|||"+oldTopic,newKey=subject+"|||"+newTopic;
+    if(order.cards?.[oldKey]){order.cards[newKey]=order.cards[oldKey];delete order.cards[oldKey]}
+  }
   save();updateTopicFilters();
   if(wasSelectedInLibrary){
     [...librarySelect.options].forEach(option=>{if(!option.value)option.selected=false;if(option.value===newTopic)option.selected=true});
@@ -1133,8 +1210,12 @@ desktopQuery.addEventListener?.("change",arrangeDesktopHistory);
 arrangeMobile();
 arrangeDesktopHistory();
 document.addEventListener("click",e=>{
-  const button=e.target.closest(".math-insert");if(!button)return;
+  const button=e.target.closest(".math-insert,.format-insert");if(!button)return;
   const form=button.closest("form"),textarea=form.querySelector('textarea[name="definition"],#newDefinition');
+  if(button.dataset.format==="bold"){
+    const start=textarea.selectionStart,end=textarea.selectionEnd,selected=textarea.value.slice(start,end)||"текст";
+    textarea.setRangeText(`**${selected}**`,start,end,"select");textarea.focus();autoResizeTextarea(textarea);renderMathPreview(textarea);return;
+  }
   const templates={inline:"\\(x^2\\)",fraction:"\\[\n\\frac{a}{b}\n\\]",sum:"\\[\n\\sum_{i=1}^{n} a_i\n\\]",set:"\\[\n\\{x \\in X \\mid P(x)\\}\n\\]",intersection:"\\[\n\\bigcap_{i\\in I} A_i\n\\]",union:"\\[\n\\bigcup_{i\\in I} A_i\n\\]"};
   const value=templates[button.dataset.math]||"",start=textarea.selectionStart,end=textarea.selectionEnd;
   textarea.setRangeText(value,start,end,"end");textarea.focus();autoResizeTextarea(textarea);renderMathPreview(textarea);
