@@ -169,11 +169,13 @@ select,input,textarea{
 @media(max-width:620px){.lib-toolbar{grid-template-columns:1fr}}
 .card-list{display:grid;gap:12px;max-height:66vh;overflow:auto;padding:3px 8px 8px 3px}
 .topic-group{display:grid;gap:12px}.topic-group.dragging,.lib-item.dragging{opacity:.48}.topic-group.drag-over,.lib-item.drag-over{outline:2px dashed var(--accent2);outline-offset:4px;border-radius:16px}.lib-item.drag-armed{box-shadow:inset 0 0 0 2px rgba(120,141,130,.38),inset 3px 3px 7px rgba(184,189,185,.5),inset -4px -4px 8px var(--shadow-light)}
-.topic-heading-row{cursor:default}.drag-handle{border:0;width:32px;height:32px;padding:0;display:grid;place-items:center;flex:0 0 32px;color:var(--muted);cursor:grab;touch-action:none;user-select:none;font-size:18px;line-height:1}.drag-handle:active{cursor:grabbing}
+.topic-heading-row{cursor:pointer}.drag-handle{border:0;width:32px;height:32px;padding:0;display:grid;place-items:center;flex:0 0 32px;color:var(--muted);cursor:grab;touch-action:none;user-select:none;font-size:18px;line-height:1}.drag-handle:active{cursor:grabbing}
 .topic-heading-row{margin:15px 5px 2px;display:flex;align-items:center;gap:8px}
 .topic-heading-row:first-child{margin-top:2px}
-.topic-heading{margin:0;font-size:15px;color:var(--accent);letter-spacing:.01em}
+.topic-heading{margin:0;min-width:0;flex:1;font-size:15px;color:var(--accent);letter-spacing:.01em}
 .rename-topic{width:28px;height:28px;padding:0;border:0;border-radius:10px;color:var(--muted);display:grid;place-items:center;font-size:13px}
+.topic-block{display:grid;gap:12px;margin:8px 0 18px;padding:15px;border:1px solid rgba(120,141,130,.18);border-radius:22px;background:rgba(195,206,199,.13)}.topic-block-head{display:flex;align-items:center;gap:10px;padding:2px 3px 5px;cursor:pointer}.topic-block-head>div{flex:1}.topic-block-head h3{margin:0;font-size:18px;color:#53665d}.topic-block-edit{border:0;padding:8px 11px;border-radius:13px;color:var(--accent);font-weight:750}.topic-block-subject{font-size:10px;color:var(--muted);font-weight:750;text-transform:uppercase;letter-spacing:.04em}.topic-block>.topic-group,.topic-block>.topic-block-empty,.topic-group>.lib-item{display:none}.topic-block.expanded>.topic-group,.topic-block.expanded>.topic-block-empty,.topic-group.expanded>.lib-item{display:grid}.topic-block-head::before,.topic-heading-row::before{content:"›";color:var(--accent);font-size:22px;line-height:1;transition:transform .18s}.topic-block.expanded>.topic-block-head::before,.topic-group.expanded>.topic-heading-row::before{transform:rotate(90deg)}
+.subject-group{display:grid;gap:12px;margin-bottom:22px}.subject-group-title{margin:8px 4px 2px;padding-bottom:9px;border-bottom:1px solid rgba(120,141,130,.2);font-size:19px;color:var(--text)}
 .lib-item{padding:16px 17px;border-radius:18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .lib-item h3{margin:0 0 5px;font-size:16px}.lib-item p{margin:0;color:var(--muted);font-size:13px}
 .lib-detail{display:none;grid-column:1/-1;margin-top:3px;padding:17px 18px;border-radius:18px;line-height:1.58}.lib-item.expanded .lib-detail{display:block}
@@ -418,6 +420,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
       <div id="cardList" class="card-list"></div>
       <button id="showMoreCards" class="show-more neo" type="button">Показать ещё</button>
       <div class="footer-actions">
+        <button id="topicBlockBtn" class="secondary neo">Новый блок тем</button>
         <button id="exportBtn" class="secondary neo">Экспорт прогресса</button>
         <button id="importBtn" class="secondary neo">Импорт прогресса</button>
         <input id="importFile" type="file" accept=".json" style="display:none">
@@ -494,6 +497,7 @@ const SUPABASE_URL = "https://tuhnikmptrwpglnkatjm.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_F3vxYVb1G8YD9KhMl_hDiQ_Za0U0jxg";
 const LOCAL_CHANGED_KEY = STORAGE_KEY + "_local_changed_at";
 const CLOUD_SYNCED_KEY = STORAGE_KEY + "_cloud_synced_at";
+const TOPIC_BLOCKS_BACKUP_KEY = STORAGE_KEY + "_topic_blocks";
 const supabaseClient = (window.supabase && window.supabase.createClient)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
   : null;
@@ -505,7 +509,7 @@ let cloudUser=null;
 let cloudSaveTimer=null;
 let cloudWriteInProgress=false;
 
-function emptyState(){ return {cards:defaults,sessions:{},deletedIds:[],history:[],libraryOrder:{topics:{},cards:{}}}; }
+function emptyState(){ return {cards:defaults,sessions:{},deletedIds:[],history:[],topicBlocks:[],libraryOrder:{topics:{},cards:{}}}; }
 function normalizeState(saved){
   if(!saved || !Array.isArray(saved.cards)) return emptyState();
   (saved.cards||[]).forEach(sanitizeCard);
@@ -515,15 +519,21 @@ function normalizeState(saved){
   const merged=defaults.filter(d=>!deletedIds.includes(d.id)).map(d=>({...d,...(byId.get(d.id)||{})}));
   const custom=(saved.cards||[]).filter(c=>c.custom && !merged.some(m=>m.id===c.id));
   const order=saved.libraryOrder&&typeof saved.libraryOrder==="object"?saved.libraryOrder:{};
-  return {cards:[...merged,...custom],sessions:saved.sessions||{},deletedIds,history:Array.isArray(saved.history)?saved.history:[],libraryOrder:{topics:order.topics||{},cards:order.cards||{}}};
+  const topicBlocks=Array.isArray(saved.topicBlocks)?saved.topicBlocks.filter(block=>block&&block.subject&&block.name).map(block=>({...block,topics:Array.isArray(block.topics)?block.topics:[]})):[];
+  return {cards:[...merged,...custom],sessions:saved.sessions||{},deletedIds,history:Array.isArray(saved.history)?saved.history:[],topicBlocks,libraryOrder:{topics:order.topics||{},cards:order.cards||{}}};
 }
 function loadState(){
-  try{ return normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)||"null")); }
+  try{
+    const loaded=normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"));
+    if(!loaded.topicBlocks.length){const backup=JSON.parse(localStorage.getItem(TOPIC_BLOCKS_BACKUP_KEY)||"[]");if(Array.isArray(backup))loaded.topicBlocks=backup}
+    return loaded;
+  }
   catch(e){ return emptyState(); }
 }
 function safeLocalSave(markChanged=true){
   try{
     localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    localStorage.setItem(TOPIC_BLOCKS_BACKUP_KEY,JSON.stringify(state.topicBlocks||[]));
     if(markChanged) localStorage.setItem(LOCAL_CHANGED_KEY,String(Date.now()));
   }catch(e){ console.warn("Local save failed",e); }
 }
@@ -589,7 +599,9 @@ async function initialCloudSync(){
   }else if(localChangedSinceSync && !cloudChangedSinceSync){
     await pushStateToCloud(); return;
   }
+  const localTopicBlocks=state.topicBlocks||[],cloudHasTopicBlocks=Object.prototype.hasOwnProperty.call(row.data||{},"topicBlocks");
   state=normalizeState(row.data);
+  if(!cloudHasTopicBlocks&&localTopicBlocks.length)state.topicBlocks=localTopicBlocks;
   safeLocalSave(false);
   try{localStorage.setItem(CLOUD_SYNCED_KEY,String(cloudTs));localStorage.setItem(LOCAL_CHANGED_KEY,String(cloudTs));}catch(_){}
   refreshAllViews();
@@ -614,6 +626,12 @@ function session(){ const k=dateKey(); return state.sessions[k]||(state.sessions
 function selectedSubjects(){ return [...document.querySelectorAll(".subjectFilter:checked")].map(x=>x.value); }
 function selectedValues(select){
   return [...select.selectedOptions].map(option=>option.value).filter(Boolean);
+}
+function scopeMatchesCard(card,scope){
+  const separator=scope.indexOf("|||"),subject=scope.slice(0,separator),value=scope.slice(separator+3);
+  if(separator<0||card.subject!==subject)return false;
+  if(value.startsWith("#block#")){const block=(state.topicBlocks||[]).find(item=>item.id===value.slice(7));return !!block&&block.topics.includes(card.topic||"Без темы")}
+  return (card.topic||"Без темы")===value;
 }
 function renderMultiSelect(select){
   const root=document.querySelector(`.multi-select[data-for="${select.id}"]`);
@@ -659,9 +677,8 @@ function renderMultiSelect(select){
 function eligibleCards(){
   const subs=selectedSubjects(), mode=document.getElementById("modeSelect").value;
   const scopes=selectedValues(document.getElementById("reviewTopic"));
-  const selectedTopics=new Set(scopes);
   let arr=state.cards.filter(c=>(scopes.length
-    ?selectedTopics.has(c.subject+"|||"+c.topic)
+    ?scopes.some(scope=>scopeMatchesCard(c,scope))
     :subs.includes(c.subject))&&c.definition.trim());
   if(mode==="weak"){
     arr=arr.filter(c=>!c.manualFamiliar&&(c.reviews===0 || c.lapses>0 || c.streak<2 || c.dueAt<=now()));
@@ -893,7 +910,7 @@ function updateStats(){
   document.getElementById("goalPercent").textContent=goalPct+"%";
   document.getElementById("goalBar").style.width=goalPct+"%";
 }
-let libraryVisible=10;
+const expandedTopicBlocks=new Set(),expandedLibraryTopics=new Set();
 function orderedLibraryCards(cards){
   const order=state.libraryOrder||(state.libraryOrder={topics:{},cards:{}});
   order.topics=order.topics||{};order.cards=order.cards||{};
@@ -938,6 +955,7 @@ function enableLibraryDragging(){
     handle.onpointerdown=event=>{
       if(event.button!==undefined&&event.button!==0)return;
       if(kind==="card"&&event.target.closest("button,.lib-detail"))return;
+      if(kind==="topic"&&event.target.closest("button"))return;
       const item=handle.closest(kind==="topic"?".topic-group":".lib-item");
       const startX=event.clientX,startY=event.clientY,pointerId=event.pointerId;let active=false,moved=false,scrollFrame=0,lastX=startX,lastY=startY;
       const autoScroll=()=>{
@@ -961,7 +979,7 @@ function enableLibraryDragging(){
         const selector=kind==="topic"?".topic-group":".lib-item",target=document.elementFromPoint(moveEvent.clientX,moveEvent.clientY)?.closest(selector);
         document.querySelectorAll(selector+".drag-over").forEach(node=>node.classList.remove("drag-over"));
         if(!target||target===item)return;
-        const sameScope=kind==="topic"?target.dataset.subject===item.dataset.subject:target.closest(".topic-group")===item.closest(".topic-group");
+        const sameScope=kind==="topic"?(target.dataset.subject===item.dataset.subject&&target.parentElement===item.parentElement):target.closest(".topic-group")===item.closest(".topic-group");
         if(!sameScope)return;
         target.classList.add("drag-over");
         const before=moveEvent.clientY<target.getBoundingClientRect().top+target.getBoundingClientRect().height/2;
@@ -975,27 +993,24 @@ function enableLibraryDragging(){
       document.addEventListener("pointermove",move,{passive:false});document.addEventListener("pointerup",end);document.addEventListener("pointercancel",end);
     };
   };
-  document.querySelectorAll(".topic-drag-handle").forEach(handle=>bindDrag(handle,"topic"));
+  document.querySelectorAll(".topic-heading-row").forEach(handle=>bindDrag(handle,"topic",true));
   document.querySelectorAll(".lib-item").forEach(item=>bindDrag(item,"card",true));
 }
 function renderLibrary(resetLimit=false){
-  if(resetLimit)libraryVisible=10;
   const q=document.getElementById("searchInput").value.trim().toLowerCase();
   const sub=document.getElementById("librarySubject").value;
-  const topics=selectedValues(document.getElementById("libraryTopic"));
+  const scopes=selectedValues(document.getElementById("libraryTopic"));
   const list=orderedLibraryCards(state.cards
-    .filter(c=>(!sub||c.subject===sub)&&(!topics.length||topics.includes(c.topic))&&(!q||(c.term+" "+c.question+" "+c.definition).toLowerCase().includes(q))));
+    .filter(c=>(!sub||c.subject===sub)&&(!scopes.length||scopes.some(scope=>scopeMatchesCard(c,scope)))&&(!q||(c.term+" "+c.question+" "+c.definition).toLowerCase().includes(q))));
   const el=document.getElementById("cardList");
-  const isMobile=window.matchMedia("(max-width:620px)").matches;
-  const visibleList=isMobile?list.slice(0,libraryVisible):list;
   const showMore=document.getElementById("showMoreCards");
-  showMore.classList.toggle("visible",isMobile&&libraryVisible<list.length);
-  showMore.textContent=`Показать ещё (${Math.max(0,list.length-libraryVisible)})`;
+  showMore.classList.remove("visible");
   if(!list.length){el.innerHTML='<div class="empty">Ничего не найдено</div>';showMore.classList.remove("visible");return}
   const groups=[];
-  visibleList.forEach(card=>{const key=card.subject+"|||"+(card.topic||"");let group=groups.at(-1);if(!group||group.key!==key){group={key,subject:card.subject,topic:card.topic||"",cards:[]};groups.push(group)}group.cards.push(card)});
-  el.innerHTML=groups.map(group=>`<section class="topic-group" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}">
-    <div class="topic-heading-row"><button class="drag-handle topic-drag-handle neo" type="button" data-drag-kind="topic" title="Перетащить тему" aria-label="Изменить порядок темы">⋮⋮</button><h3 class="topic-heading">${escapeHtml(group.topic||"Без темы")}</h3><button class="rename-topic neo" type="button" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}" title="Переименовать тему" aria-label="Переименовать тему ${escapeHtml(group.topic||"Без темы")}">✎</button></div>
+  list.forEach(card=>{const key=card.subject+"|||"+(card.topic||"");let group=groups.at(-1);if(!group||group.key!==key){group={key,subject:card.subject,topic:card.topic||"",cards:[]};groups.push(group)}group.cards.push(card)});
+  const forceExpanded=!!q||scopes.length>0;
+  const topicHtml=group=>`<section class="topic-group ${(forceExpanded||expandedLibraryTopics.has(group.key))?"expanded":""}" data-topic-key="${escapeHtml(group.key)}" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}">
+    <div class="topic-heading-row" title="Нажмите для просмотра карточек; удерживайте для перемещения"><h3 class="topic-heading">${escapeHtml(group.topic||"Без темы")}</h3><button class="rename-topic neo" type="button" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}" title="Переименовать тему" aria-label="Переименовать тему ${escapeHtml(group.topic||"Без темы")}">✎</button></div>
     ${group.cards.map(c=>{const [txt,cls]=statusOf(c);return `<div class="lib-item neo-inset" data-id="${escapeHtml(c.id)}" role="button" tabindex="0" aria-expanded="false" title="Удерживайте карточку, чтобы изменить порядок">
       <div><h3>${escapeHtml(c.term)}</h3><p>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Без темы")} · ${c.reviews} повторений · ${c.correct} удачных</p></div>
       <div style="display:flex;gap:8px;align-items:center">
@@ -1005,7 +1020,21 @@ function renderLibrary(resetLimit=false){
       </div>
       <div class="lib-detail neo-inset"><div class="lib-question card-copy">${formatCardText(c.question||"")}</div><div class="lib-answer card-copy">${formatCardText(c.definition||"")}</div>${c.note?`<div class="lib-note card-copy">${formatCardText(c.note)}</div>`:""}</div>
     </div>`}).join("")}
-  </section>`).join("");
+  </section>`;
+  const blocks=state.topicBlocks||[];let libraryHtml="";
+  [...new Set(groups.map(group=>group.subject))].forEach(subject=>{
+    const subjectGroups=groups.filter(group=>group.subject===subject),subjectBlocks=blocks.filter(block=>block.subject===subject),groupedTopics=new Set();let content="";
+    subjectBlocks.forEach(block=>{
+      const blockGroups=subjectGroups.filter(group=>block.topics.includes(group.topic||"Без темы"));
+      blockGroups.forEach(group=>groupedTopics.add(group.topic||"Без темы"));
+      content+=`<section class="topic-block ${(forceExpanded||expandedTopicBlocks.has(block.id))?"expanded":""}" data-block-id="${escapeHtml(block.id)}"><div class="topic-block-head" role="button" tabindex="0"><div><div class="topic-block-subject">${blockGroups.length} тем</div><h3>${escapeHtml(block.name)}</h3></div><button class="topic-block-edit neo" type="button" data-block-id="${escapeHtml(block.id)}">Настроить</button></div>${blockGroups.length?blockGroups.map(topicHtml).join(""):'<div class="empty topic-block-empty">В блоке пока нет доступных тем</div>'}</section>`;
+    });
+    content+=subjectGroups.filter(group=>!groupedTopics.has(group.topic||"Без темы")).map(topicHtml).join("");
+    libraryHtml+=`<section class="subject-group" data-subject="${escapeHtml(subject)}"><h2 class="subject-group-title">${escapeHtml(subject)}</h2>${content}</section>`;
+  });
+  el.innerHTML=libraryHtml;
+  document.querySelectorAll(".topic-block-head").forEach(head=>head.onclick=event=>{if(event.target.closest("button"))return;const block=head.closest(".topic-block"),id=block.dataset.blockId,expanded=block.classList.toggle("expanded");expanded?expandedTopicBlocks.add(id):expandedTopicBlocks.delete(id)});
+  document.querySelectorAll(".topic-heading-row").forEach(head=>head.onclick=event=>{if(Date.now()<libraryDragClickUntil||event.target.closest("button"))return;const topic=head.closest(".topic-group"),key=topic.dataset.topicKey,expanded=topic.classList.toggle("expanded");expanded?expandedLibraryTopics.add(key):expandedLibraryTopics.delete(key)});
   const toggleLibraryCard=item=>{
     const detail=item.querySelector(".lib-detail"),expanded=item.classList.toggle("expanded");item.setAttribute("aria-expanded",String(expanded));
     if(expanded&&!detail.dataset.typeset){typesetMath([detail]);detail.dataset.typeset="true"}
@@ -1018,12 +1047,33 @@ function renderLibrary(resetLimit=false){
   document.querySelectorAll(".delete-card").forEach(b=>b.onclick=()=>deleteCard(b.dataset.id));
   document.querySelectorAll(".familiarity-toggle").forEach(b=>b.onclick=()=>toggleFamiliar(b.dataset.id));
   document.querySelectorAll(".rename-topic").forEach(b=>b.onclick=()=>renameTopic(b.dataset.subject,b.dataset.topic));
+  document.querySelectorAll(".topic-block-edit").forEach(b=>b.onclick=()=>editTopicBlock(b.dataset.blockId));
   enableLibraryDragging();
+}
+
+function editTopicBlock(blockId=null){
+  const existing=blockId?(state.topicBlocks||[]).find(block=>block.id===blockId):null;
+  const subject=existing?.subject||document.getElementById("librarySubject").value;
+  if(!subject){alert("Сначала выберите один предмет в фильтре библиотеки.");return}
+  const topics=[...new Set(state.cards.filter(card=>card.subject===subject).map(card=>card.topic||"Без темы"))].sort((a,b)=>a.localeCompare(b,"de"));
+  const occupied=new Set((state.topicBlocks||[]).filter(block=>block.subject===subject&&block.id!==blockId).flatMap(block=>block.topics));
+  const available=topics.filter(topic=>!occupied.has(topic)||(existing?.topics||[]).includes(topic));
+  const overlay=document.createElement("div");overlay.className="history-modal show";
+  overlay.innerHTML=`<div class="history-panel neo"><div class="history-head"><h2>${existing?"Настроить блок":"Новый блок тем"}</h2><button class="neo topic-block-close" type="button">×</button></div><form class="form-grid topic-block-form"><div><label>Название блока</label><input name="name" class="neo-inset" required value="${escapeHtml(existing?.name||"")}" placeholder="Например: Графы"></div><div><label>Темы внутри блока</label><div class="subject-checks neo-inset" style="padding:12px;max-height:45vh;overflow:auto">${available.map(topic=>`<label class="check"><input type="checkbox" name="topics" value="${escapeHtml(topic)}" ${(existing?.topics||[]).includes(topic)?"checked":""}> ${escapeHtml(topic)}</label>`).join("")||'<div class="empty">Нет свободных тем</div>'}</div></div><div class="footer-actions"><button class="primary neo" type="submit">Сохранить</button>${existing?'<button class="secondary neo topic-block-delete" type="button" style="color:var(--danger)">Удалить блок</button>':""}</div></form></div>`;
+  document.body.appendChild(overlay);const close=()=>overlay.remove();
+  overlay.querySelector(".topic-block-close").onclick=close;overlay.onclick=event=>{if(event.target===overlay)close()};
+  overlay.querySelector(".topic-block-form").onsubmit=event=>{event.preventDefault();const form=event.currentTarget,name=form.elements.name.value.trim(),selected=[...form.querySelectorAll('[name="topics"]:checked')].map(input=>input.value);if(!name||!selected.length){alert("Введите название и выберите хотя бы одну тему.");return}state.topicBlocks=state.topicBlocks||[];if(existing){existing.name=name;existing.topics=selected}else state.topicBlocks.push({id:"block_"+Date.now(),subject,name,topics:selected});save();close();updateTopicFilters();renderLibrary();toast("Блок тем сохранён")};
+  const remove=overlay.querySelector(".topic-block-delete");if(remove)remove.onclick=()=>{if(confirm(`Удалить блок «${existing.name}»? Темы и карточки останутся.`)){state.topicBlocks=state.topicBlocks.filter(block=>block.id!==existing.id);save();close();updateTopicFilters();renderLibrary();toast("Блок удалён")}};
 }
 function fillTopicSelect(select,subjects){
   const previous=new Set(selectedValues(select));
-  const topics=[...new Set(state.cards.filter(c=>!subjects.length||subjects.includes(c.subject)).map(c=>c.topic||"Без темы"))];
-  select.innerHTML='<option value="">Все темы</option>'+topics.map(topic=>`<option>${escapeHtml(topic)}</option>`).join("");
+  const usedSubjects=subjects.length?subjects:[...new Set(state.cards.map(card=>card.subject))];let html='<option value="">Все темы и блоки</option>';
+  for(const subject of usedSubjects){
+    const topics=[...new Set(state.cards.filter(card=>card.subject===subject).map(card=>card.topic||"Без темы"))];
+    const blocks=(state.topicBlocks||[]).filter(block=>block.subject===subject);
+    html+=`<optgroup label="${escapeHtml(subject)}">${blocks.map(block=>`<option value="${escapeHtml(subject+"|||#block#"+block.id)}">▣ ${escapeHtml(block.name)} (весь блок)</option>`).join("")}${topics.map(topic=>`<option value="${escapeHtml(subject+"|||"+topic)}">${escapeHtml(topic)}</option>`).join("")}</optgroup>`;
+  }
+  select.innerHTML=html;
   [...select.options].forEach(option=>option.selected=previous.has(option.value));
   if(!selectedValues(select).length)select.options[0].selected=true;
   renderMultiSelect(select);
@@ -1033,7 +1083,8 @@ function fillReviewTopicSelect(){
   let html='<option value="">Все выбранные предметы и темы</option>';
   for(const subject of subjects){
     const topics=[...new Set(state.cards.filter(c=>c.subject===subject).map(c=>c.topic||"Без темы"))];
-    html+=`<optgroup label="${escapeHtml(subject)}">${topics.map(topic=>`<option value="${escapeHtml(subject+"|||"+topic)}">${escapeHtml(topic)}</option>`).join("")}</optgroup>`;
+    const blocks=(state.topicBlocks||[]).filter(block=>block.subject===subject);
+    html+=`<optgroup label="${escapeHtml(subject)}">${blocks.map(block=>`<option value="${escapeHtml(subject+"|||#block#"+block.id)}">▣ ${escapeHtml(block.name)} (весь блок)</option>`).join("")}${topics.map(topic=>`<option value="${escapeHtml(subject+"|||"+topic)}">${escapeHtml(topic)}</option>`).join("")}</optgroup>`;
   }
   select.innerHTML=html;
   [...select.options].forEach(option=>option.selected=previous.has(option.value));
@@ -1073,7 +1124,7 @@ function renameTopic(subject,oldTopic){
   if(!newTopic){alert("Название темы не может быть пустым.");return}
   if(newTopic===oldTopic)return;
   const librarySelect=document.getElementById("libraryTopic"),reviewSelect=document.getElementById("reviewTopic");
-  const wasSelectedInLibrary=selectedValues(librarySelect).includes(oldTopic);
+  const wasSelectedInLibrary=selectedValues(librarySelect).includes(subject+"|||"+oldTopic);
   const wasSelectedInReview=selectedValues(reviewSelect).includes(subject+"|||"+oldTopic);
   const cardIds=new Set(state.cards.filter(card=>card.subject===subject&&card.topic===oldTopic).map(card=>card.id));
   state.cards.forEach(card=>{if(cardIds.has(card.id))card.topic=newTopic});
@@ -1084,9 +1135,10 @@ function renameTopic(subject,oldTopic){
     const oldKey=subject+"|||"+oldTopic,newKey=subject+"|||"+newTopic;
     if(order.cards?.[oldKey]){order.cards[newKey]=order.cards[oldKey];delete order.cards[oldKey]}
   }
+  (state.topicBlocks||[]).filter(block=>block.subject===subject).forEach(block=>{block.topics=block.topics.map(topic=>topic===oldTopic?newTopic:topic)});
   save();updateTopicFilters();
   if(wasSelectedInLibrary){
-    [...librarySelect.options].forEach(option=>{if(!option.value)option.selected=false;if(option.value===newTopic)option.selected=true});
+    [...librarySelect.options].forEach(option=>{if(!option.value)option.selected=false;if(option.value===subject+"|||"+newTopic)option.selected=true});
     renderMultiSelect(librarySelect);
   }
   if(wasSelectedInReview){
@@ -1139,6 +1191,7 @@ function setView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.view===name));
   document.getElementById(name+"View").classList.add("active");
+  if(name==="review")updateTopicFilters();
   arrangeDesktopHistory();
   if(name==="library")renderLibrary(true);
 }
@@ -1161,6 +1214,7 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>setView(t.dataset.vie
 document.getElementById("searchInput").oninput=()=>renderLibrary(true);
 document.getElementById("librarySubject").onchange=()=>{updateTopicFilters();renderLibrary(true)};
 document.getElementById("libraryTopic").onchange=()=>renderLibrary(true);
+document.getElementById("topicBlockBtn").onclick=()=>editTopicBlock();
 document.addEventListener("click",e=>{
   if(e.target.closest(".multi-select"))return;
   document.querySelectorAll(".multi-select.open").forEach(item=>{
@@ -1175,7 +1229,6 @@ document.getElementById("cancelEdit").onclick=()=>{const target=editReturnView;c
 document.getElementById("historyBtn").onclick=()=>{closeDrawer();renderHistory();document.getElementById("historyModal").classList.add("show")};
 document.getElementById("historyClose").onclick=()=>document.getElementById("historyModal").classList.remove("show");
 document.getElementById("historyModal").onclick=e=>{if(e.target.id==="historyModal")e.currentTarget.classList.remove("show")};
-document.getElementById("showMoreCards").onclick=()=>{libraryVisible+=10;renderLibrary()};
 
 const mobileQuery=window.matchMedia("(max-width:620px)");
 const desktopQuery=window.matchMedia("(min-width:1271px)");
@@ -1299,13 +1352,13 @@ document.getElementById("exportBtn").onclick=()=>{
 document.getElementById("importBtn").onclick=()=>document.getElementById("importFile").click();
 document.getElementById("importFile").onchange=async e=>{
   const f=e.target.files[0];if(!f)return;
-  try{const data=JSON.parse(await f.text());if(!Array.isArray(data.cards))throw 0;state=data;save();renderLibrary();pickCard();toast("Прогресс импортирован")}catch(_){alert("Не удалось прочитать файл прогресса.");}
+  try{const data=JSON.parse(await f.text());if(!Array.isArray(data.cards))throw 0;state=normalizeState(data);save();updateTopicFilters();renderLibrary();pickCard();toast("Прогресс импортирован")}catch(_){alert("Не удалось прочитать файл прогресса.");}
   e.target.value="";
 };
 document.getElementById("resetBtn").onclick=()=>{
   if(confirm("Сбросить весь прогресс? Добавленные вручную карточки сохранятся.")){
     const custom=state.cards.filter(c=>c.custom).map(c=>({...c,manualFamiliar:false,reviews:0,correct:0,lapses:0,streak:0,intervalDays:0,dueAt:0,lastReviewed:0}));
-    state={cards:[...defaults.filter(c=>!(state.deletedIds||[]).includes(c.id)),...custom],sessions:{},deletedIds:state.deletedIds||[],history:[]};save();renderLibrary();pickCard();toast("Прогресс сброшен");
+    state={cards:[...defaults.filter(c=>!(state.deletedIds||[]).includes(c.id)),...custom],sessions:{},deletedIds:state.deletedIds||[],history:[],topicBlocks:state.topicBlocks||[],libraryOrder:state.libraryOrder||{topics:{},cards:{}}};save();updateTopicFilters();renderLibrary();pickCard();toast("Прогресс сброшен");
   }
 };
 document.getElementById("syncBtn").onclick=async()=>{
