@@ -168,6 +168,10 @@ select,input,textarea{
 .lib-toolbar{display:grid;grid-template-columns:1fr 220px 220px;gap:12px;margin-bottom:18px}
 @media(max-width:620px){.lib-toolbar{grid-template-columns:1fr}}
 .card-list{display:grid;gap:12px;max-height:66vh;overflow:auto;padding:3px 8px 8px 3px}
+/* Use page scrolling on touch devices, including tablets with a mouse attached. */
+@media (any-pointer:coarse){
+  .card-list{max-height:none;overflow:visible}
+}
 .topic-group{display:grid;gap:12px}.topic-group.dragging,.lib-item.dragging{opacity:.48}.topic-group.drag-over,.lib-item.drag-over{outline:2px dashed var(--accent2);outline-offset:4px;border-radius:16px}.lib-item.drag-armed{box-shadow:inset 0 0 0 2px rgba(120,141,130,.38),inset 3px 3px 7px rgba(184,189,185,.5),inset -4px -4px 8px var(--shadow-light)}
 .topic-heading-row{cursor:pointer}.drag-handle{border:0;width:32px;height:32px;padding:0;display:grid;place-items:center;flex:0 0 32px;color:var(--muted);cursor:grab;touch-action:none;user-select:none;font-size:18px;line-height:1}.drag-handle:active{cursor:grabbing}
 .topic-heading-row{margin:15px 5px 2px;display:flex;align-items:center;gap:8px}
