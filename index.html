@@ -293,6 +293,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
 .auth-form{display:grid;gap:12px}.auth-actions{display:flex;gap:10px;margin-top:4px}.auth-actions button{flex:1;border:0;padding:12px;border-radius:16px;font-weight:850}
 .auth-error{min-height:18px;color:var(--danger);font-size:12px;margin-top:8px}
 @media(max-width:620px){.sync-box{width:100%;justify-content:space-between}.sync-status{font-size:11px}.sync-btn{padding:9px 11px}}
+.semester-bar{display:flex;align-items:center;gap:14px;padding:8px 12px;margin-bottom:14px;flex:none;flex-wrap:wrap}.semester-options{display:flex;gap:5px}.semester-bar #semesterContext{color:var(--muted);flex:1}.semester-bar .small-btn{border:0}.subject-row{display:flex;gap:10px;align-items:center}.subject-row span{flex:1;overflow-wrap:anywhere}.subject-manager-list{display:grid;gap:14px;overflow:auto;margin-bottom:20px}.subject-manager-form{display:flex;gap:10px}.subject-manager-form input{min-width:0;flex:1}#reviewView .filters .subject-checks{flex-wrap:wrap}@media(max-width:620px){.semester-bar{gap:8px;padding:8px}.semester-bar #semesterContext{font-size:11px}.semester-bar #manageSubjects{width:100%}}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -316,6 +317,10 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
     <button id="menuToggle" class="menu-toggle neo" type="button" aria-label="Открыть меню" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 
+  <div class="semester-bar neo" aria-label="Выбор семестра">
+    <div class="semester-options"><button type="button" class="semester-tab tab" data-semester="4">4 семестр</button><button type="button" class="semester-tab tab" data-semester="5">5 семестр</button></div>
+    <span id="semesterContext"></span><button id="manageSubjects" type="button" class="small-btn neo">Предметы · изменить / добавить</button>
+  </div>
   <div id="drawerBackdrop" class="drawer-backdrop"></div>
   <aside id="mobileDrawer" class="mobile-drawer" aria-label="Мобильное меню"></aside>
 
@@ -399,7 +404,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
 
       <aside class="column right-column">
         <div class="daily neo">
-          <h2>Три карточки дня</h2>
+          <h2>Карточки дня</h2>
           <p class="daily-intro">По одной самой сложной карточке из каждого предмета. Ответы показаны полностью.</p>
           <div id="dailyCards" class="daily-list"></div>
         </div>
@@ -506,38 +511,46 @@ const supabaseClient = (window.supabase && window.supabase.createClient)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
   : null;
 
+const semesterSubjects={"4":["Algorithmen & Programmierung","Digitaltechnik","Diskrete Mathematik"],"5":["Theoretische Informatik","Datenbanken","Grundlagen der Rechnernetze"]};
+let activeSemester=localStorage.getItem(STORAGE_KEY+"_semester")==="5"?"5":"4";
+let semesters={};
 let state = loadState();
+function snapshot(){semesters[activeSemester]=state;return {version:2,semesters};}
+function restoreSemesters(data){
+  semesters={"4":normalizeState(data?.semesters?data.semesters["4"]:data,"4"),"5":normalizeState(data?.semesters?.["5"],"5")};
+  return semesters[activeSemester];
+}
 let current = null;
 let editReturnView="library";
 let cloudUser=null;
 let cloudSaveTimer=null;
 let cloudWriteInProgress=false;
 
-function emptyState(){ return {cards:defaults,sessions:{},deletedIds:[],history:[],topicBlocks:[],libraryOrder:{topics:{},cards:{}}}; }
-function normalizeState(saved){
-  if(!saved || !Array.isArray(saved.cards)) return emptyState();
+function emptyState(semester="4"){ return {cards:semester==="4"?defaults.map(c=>({...c})):[],subjects:[...semesterSubjects[semester]],sessions:{},deletedIds:[],history:[],topicBlocks:[],libraryOrder:{topics:{},cards:{}}}; }
+function normalizeState(saved,semester="4"){
+  if(!saved || !Array.isArray(saved.cards)) return emptyState(semester);
   (saved.cards||[]).forEach(sanitizeCard);
   (saved.history||[]).forEach(sanitizeCard);
   const deletedIds=Array.isArray(saved.deletedIds)?saved.deletedIds:[];
   const byId=new Map((saved.cards||[]).map(c=>[c.id,c]));
-  const merged=defaults.filter(d=>!deletedIds.includes(d.id)).map(d=>({...d,...(byId.get(d.id)||{})}));
+  const merged=(semester==="4"?defaults:[]).filter(d=>!deletedIds.includes(d.id)).map(d=>({...d,...(byId.get(d.id)||{})}));
   const custom=(saved.cards||[]).filter(c=>c.custom && !merged.some(m=>m.id===c.id));
   const order=saved.libraryOrder&&typeof saved.libraryOrder==="object"?saved.libraryOrder:{};
   const topicBlocks=Array.isArray(saved.topicBlocks)?saved.topicBlocks.filter(block=>block&&block.subject&&block.name).map(block=>({...block,topics:Array.isArray(block.topics)?block.topics:[]})):[];
-  return {cards:[...merged,...custom],sessions:saved.sessions||{},deletedIds,history:Array.isArray(saved.history)?saved.history:[],topicBlocks,libraryOrder:{topics:order.topics||{},cards:order.cards||{}}};
+  return {subjects:[...new Set([...(Array.isArray(saved.subjects)?saved.subjects:semesterSubjects[semester]),...merged.map(c=>c.subject),...custom.map(c=>c.subject)])],cards:[...merged,...custom],sessions:saved.sessions||{},deletedIds,history:Array.isArray(saved.history)?saved.history:[],topicBlocks,libraryOrder:{topics:order.topics||{},cards:order.cards||{}}};
 }
 function loadState(){
   try{
-    const loaded=normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"));
-    if(!loaded.topicBlocks.length){const backup=JSON.parse(localStorage.getItem(TOPIC_BLOCKS_BACKUP_KEY)||"[]");if(Array.isArray(backup))loaded.topicBlocks=backup}
+    const loaded=restoreSemesters(JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"));
+    if(activeSemester==="4"&&!loaded.topicBlocks.length){const backup=JSON.parse(localStorage.getItem(TOPIC_BLOCKS_BACKUP_KEY)||"[]");if(Array.isArray(backup))loaded.topicBlocks=backup}
     return loaded;
   }
-  catch(e){ return emptyState(); }
+  catch(e){ return restoreSemesters(null); }
 }
 function safeLocalSave(markChanged=true){
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
-    localStorage.setItem(TOPIC_BLOCKS_BACKUP_KEY,JSON.stringify(state.topicBlocks||[]));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot()));
+    localStorage.setItem(TOPIC_BLOCKS_BACKUP_KEY,JSON.stringify(semesters["4"].topicBlocks||[]));
     if(markChanged) localStorage.setItem(LOCAL_CHANGED_KEY,String(Date.now()));
   }catch(e){ console.warn("Local save failed",e); }
 }
@@ -566,7 +579,7 @@ async function pushStateToCloud(){
   try{
     const stamp=new Date().toISOString();
     const {error}=await supabaseClient.from("study_state").upsert({
-      user_id:cloudUser.id, data:state, updated_at:stamp
+      user_id:cloudUser.id, data:snapshot(), updated_at:stamp
     },{onConflict:"user_id"});
     if(error)throw error;
     const ts=Date.parse(stamp);
@@ -577,6 +590,7 @@ async function pushStateToCloud(){
   }finally{cloudWriteInProgress=false;}
 }
 function refreshAllViews(){
+  renderSubjects(); clearForm(); renderHistory();
   updateStats(); updateTopicFilters(); renderDailyCards(); renderHistorySummary();
   if(document.getElementById("libraryView").classList.contains("active"))renderLibrary();
   pickCard();
@@ -603,9 +617,9 @@ async function initialCloudSync(){
   }else if(localChangedSinceSync && !cloudChangedSinceSync){
     await pushStateToCloud(); return;
   }
-  const localTopicBlocks=state.topicBlocks||[],cloudHasTopicBlocks=Object.prototype.hasOwnProperty.call(row.data||{},"topicBlocks");
-  state=normalizeState(row.data);
-  if(!cloudHasTopicBlocks&&localTopicBlocks.length)state.topicBlocks=localTopicBlocks;
+  const localTopicBlocks=semesters["4"].topicBlocks||[],cloudHasTopicBlocks=Object.prototype.hasOwnProperty.call(row.data?.semesters?.["4"]||row.data||{},"topicBlocks");
+  state=restoreSemesters(row.data);
+  if(!cloudHasTopicBlocks&&localTopicBlocks.length)semesters["4"].topicBlocks=localTopicBlocks;
   safeLocalSave(false);
   try{localStorage.setItem(CLOUD_SYNCED_KEY,String(cloudTs));localStorage.setItem(LOCAL_CHANGED_KEY,String(cloudTs));}catch(_){}
   refreshAllViews();
@@ -713,7 +727,7 @@ function dailyPickForSubject(subject){
   return cards.sort((a,b)=>difficulty(b)-difficulty(a)||((a.id.length+daySeed)%17)-((b.id.length+daySeed)%17)||a.id.localeCompare(b.id))[0];
 }
 function renderDailyCards(){
-  const subjects=["Algorithmen & Programmierung","Digitaltechnik","Diskrete Mathematik"];
+  const subjects=state.subjects;
   const picks=subjects.map(dailyPickForSubject).filter(Boolean);
   const el=document.getElementById("dailyCards");
   el.innerHTML=picks.length?picks.map(c=>`<button class="daily-card neo-inset" data-id="${c.id}" aria-expanded="false"><b>${escapeHtml(c.term)}</b><span>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Без темы")}</span><div class="daily-definition card-copy">${formatCardText(c.definition)}</div></button>`).join(""):'<div class="empty">Нет карточек</div>';
@@ -736,7 +750,7 @@ function renderHistory(){
   el.innerHTML=history.map((item,index)=>{
     const when=new Date(item.ts).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
     const card=state.cards.find(c=>c.id===item.id),question=item.question||(card&&card.question)||"",definition=item.definition||(card&&card.definition)||"Карточка была удалена, сохранённого ответа нет.",note=item.note||(card&&card.note)||"";
-    const subjectOptions=card?["Algorithmen & Programmierung","Digitaltechnik","Diskrete Mathematik"].map(subject=>`<option ${subject===card.subject?"selected":""}>${escapeHtml(subject)}</option>`).join(""):"";
+    const subjectOptions=card?state.subjects.map(subject=>`<option ${subject===card.subject?"selected":""}>${escapeHtml(subject)}</option>`).join(""):"";
     const editor=card?`<form class="history-inline-editor neo-inset" data-card-id="${escapeHtml(card.id)}"><div><label>Предмет</label><select name="subject" class="neo-inset">${subjectOptions}</select></div><div><label>Тема</label><input name="topic" class="neo-inset" list="existingTopicOptions" required value="${escapeHtml(card.topic||"Eigene Karten")}"></div><div><label>Термин</label><input name="term" class="neo-inset" required value="${escapeHtml(card.term)}"></div><div><label>Вопрос</label><textarea name="question" class="neo-inset">${escapeHtml(card.question||"")}</textarea></div><div><label>Определение</label><textarea name="definition" class="neo-inset" required>${escapeHtml(card.definition||"")}</textarea><span class="math-help">Жирный текст: **текст**. Формулы: \\(x^2\\) или \\[\\frac{a}{b}\\]</span>${mathEditorTools()}</div><div><label>Заметка</label><textarea name="note" class="neo-inset">${escapeHtml(card.note||"")}</textarea></div><div class="history-edit-actions"><button type="submit" class="history-save neo">Сохранить</button><button type="button" class="history-edit-cancel neo">Отмена</button></div></form>`:"";
     return `<div class="history-item neo-inset" data-history-index="${index}"><button class="history-main" aria-expanded="false"><div><b>${escapeHtml(item.term)}</b><span>${escapeHtml(item.subject)}${item.topic?` · ${escapeHtml(item.topic)}`:""} · ${when}</span></div><div class="history-result ${item.good?"good":"bad"}">${item.good?"Вспомнила":"Повторить"}</div></button><div class="history-detail"><div class="history-question card-copy">${formatCardText(question)}</div><div class="history-answer card-copy">${formatCardText(definition)}</div>${note?`<div class="history-note card-copy">${formatCardText(note)}</div>`:""}<button class="history-edit neo" data-card-id="${escapeHtml(item.id)}" ${card?"":"disabled"}>${card?"Редактировать карточку":"Карточка удалена"}</button>${editor}</div></div>`;
   }).join("");
@@ -775,7 +789,7 @@ function pickCard(){
 }
 function renderEmpty(){
   document.body.classList.remove("card-open");
-  document.documentElement.classList.add("review-locked");
+  document.documentElement.classList.toggle("review-locked",document.body.classList.contains("review-active"));
   document.querySelector(".main-card").classList.remove("answer-revealed");
   document.getElementById("subjectPill").textContent="Нет активных карточек";
   document.getElementById("term").textContent="Добавьте определение или измените фильтры";
@@ -790,7 +804,7 @@ function renderEmpty(){
 }
 function renderCard(){
   document.body.classList.remove("card-open");
-  document.documentElement.classList.add("review-locked");
+  document.documentElement.classList.toggle("review-locked",document.body.classList.contains("review-active"));
   document.querySelector(".main-card").classList.remove("answer-revealed");
   document.getElementById("revealBtn").style.display="";
   document.getElementById("editCurrentBtn").style.display="";
@@ -1183,6 +1197,7 @@ function openEdit(id,returnView="library"){
 }
 function clearForm(){
   document.getElementById("cardForm").reset();
+  renderMathPreview(document.getElementById("newDefinition"));
   document.querySelectorAll("#cardForm textarea").forEach(autoResizeTextarea);
   document.getElementById("editId").value="";
   document.getElementById("formTitle").textContent="Новая карточка";
@@ -1193,7 +1208,7 @@ function setView(name){
   if(name!=="review")document.body.classList.remove("card-open");
   document.documentElement.classList.toggle("review-locked",name==="review"&&!document.body.classList.contains("card-open"));
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.view===name));
+  document.querySelectorAll(".tab[data-view]").forEach(t=>t.classList.toggle("active",t.dataset.view===name));
   document.getElementById(name+"View").classList.add("active");
   if(name==="review")updateTopicFilters();
   arrangeDesktopHistory();
@@ -1214,7 +1229,7 @@ document.getElementById("skipBtn").onclick=pickCard;
 document.querySelectorAll(".subjectFilter").forEach(x=>x.onchange=()=>{updateTopicFilters();pickCard()});
 document.getElementById("reviewTopic").onchange=pickCard;
 document.getElementById("modeSelect").onchange=pickCard;
-document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>setView(t.dataset.view));
+document.querySelectorAll(".tab[data-view]").forEach(t=>t.onclick=()=>setView(t.dataset.view));
 document.getElementById("searchInput").oninput=()=>renderLibrary(true);
 document.getElementById("librarySubject").onchange=()=>{updateTopicFilters();renderLibrary(true)};
 document.getElementById("libraryTopic").onchange=()=>renderLibrary(true);
@@ -1350,19 +1365,19 @@ document.getElementById("cardForm").onsubmit=e=>{
 };
 
 document.getElementById("exportBtn").onclick=()=>{
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const blob=new Blob([JSON.stringify(snapshot(),null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="definitionen-progress.json";a.click();URL.revokeObjectURL(a.href);
 };
 document.getElementById("importBtn").onclick=()=>document.getElementById("importFile").click();
 document.getElementById("importFile").onchange=async e=>{
   const f=e.target.files[0];if(!f)return;
-  try{const data=JSON.parse(await f.text());if(!Array.isArray(data.cards))throw 0;state=normalizeState(data);save();updateTopicFilters();renderLibrary();pickCard();toast("Прогресс импортирован")}catch(_){alert("Не удалось прочитать файл прогресса.");}
+  try{const data=JSON.parse(await f.text());if(!Array.isArray(data.cards)&&!(data.semesters&&Array.isArray(data.semesters["4"]?.cards)&&Array.isArray(data.semesters["5"]?.cards)))throw 0;state=restoreSemesters(data);save();refreshAllViews();renderLibrary();toast("Прогресс импортирован")}catch(_){alert("Не удалось прочитать файл прогресса.");}
   e.target.value="";
 };
 document.getElementById("resetBtn").onclick=()=>{
-  if(confirm("Сбросить весь прогресс? Добавленные вручную карточки сохранятся.")){
-    const custom=state.cards.filter(c=>c.custom).map(c=>({...c,manualFamiliar:false,reviews:0,correct:0,lapses:0,streak:0,intervalDays:0,dueAt:0,lastReviewed:0}));
-    state={cards:[...defaults.filter(c=>!(state.deletedIds||[]).includes(c.id)),...custom],sessions:{},deletedIds:state.deletedIds||[],history:[],topicBlocks:state.topicBlocks||[],libraryOrder:state.libraryOrder||{topics:{},cards:{}}};save();updateTopicFilters();renderLibrary();pickCard();toast("Прогресс сброшен");
+  if(confirm("Сбросить прогресс текущего семестра? Карточки и предметы сохранятся.")){
+    state.cards=state.cards.map(c=>({...c,manualFamiliar:false,reviews:0,correct:0,lapses:0,streak:0,intervalDays:0,dueAt:0,lastReviewed:0}));
+    state.sessions={};state.history=[];save();refreshAllViews();renderLibrary();toast("Прогресс семестра сброшен");
   }
 };
 document.getElementById("syncBtn").onclick=async()=>{
@@ -1396,7 +1411,43 @@ document.addEventListener("keydown",e=>{
   if(e.key==="1"&&document.getElementById("gradeRow").classList.contains("show"))grade(false);
   if(e.key==="2"&&document.getElementById("gradeRow").classList.contains("show"))grade(true);
 });
-renderTimer();updateStats();updateTopicFilters();renderDailyCards();renderHistorySummary();pickCard();initCloud();
+function renderSubjects(){
+  const options=state.subjects.map(name=>`<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+  for(const id of ["librarySubject","newSubject"]){const el=document.getElementById(id),old=el.value;el.innerHTML=(id==="librarySubject"?'<option value="">Все предметы</option>':"")+options;if(state.subjects.includes(old))el.value=old;}
+  document.querySelector(".filters .subject-checks").innerHTML=state.subjects.map(name=>`<label class="check"><input type="checkbox" class="subjectFilter" value="${escapeHtml(name)}" checked> ${escapeHtml(name)}</label>`).join("");
+  document.querySelectorAll(".subjectFilter").forEach(el=>el.onchange=()=>{updateTopicFilters();pickCard()});
+  document.querySelectorAll(".semester-tab").forEach(el=>{el.classList.toggle("active",el.dataset.semester===activeSemester);el.setAttribute("aria-pressed",String(el.dataset.semester===activeSemester))});
+  document.getElementById("semesterContext").textContent=activeSemester+" семестр · карточки и статистика отдельно";
+}
+function switchSemester(id){
+  if(id===activeSemester)return;
+  semesters[activeSemester]=state;activeSemester=id;state=semesters[id];current=null;
+  localStorage.setItem(STORAGE_KEY+"_semester",id);
+  document.getElementById("searchInput").value="";
+  for(const id of ["librarySubject","reviewTopic","libraryTopic"])document.getElementById(id).value="";
+  expandedLibraryTopics.clear();expandedTopicBlocks.clear();
+  document.getElementById("historyModal").classList.remove("show");
+  refreshAllViews();renderLibrary(true);
+}
+function renameSubject(oldName,newName){
+  state.subjects=state.subjects.map(name=>name===oldName?newName:name);
+  for(const items of [state.cards,state.history,state.topicBlocks])items.forEach(item=>{if(item.subject===oldName)item.subject=newName});
+  const order=state.libraryOrder;
+  if(order.topics[oldName]){order.topics[newName]=order.topics[oldName];delete order.topics[oldName]}
+  for(const key of Object.keys(order.cards)){if(key.startsWith(oldName+"|||")){order.cards[newName+key.slice(oldName.length)]=order.cards[key];delete order.cards[key]}}
+}
+function manageSubjects(){
+  const overlay=document.createElement("div");overlay.className="history-modal show";
+  overlay.innerHTML=`<div class="history-panel neo" role="dialog" aria-modal="true" aria-label="Предметы"><div class="history-head"><h2>Предметы · ${activeSemester} семестр</h2><button type="button" class="neo close">×</button></div><div class="subject-manager-list"></div><form class="subject-manager-form"><input class="neo-inset" aria-label="Название нового предмета" placeholder="Название нового предмета" required maxlength="120"><button class="small-btn neo" type="submit">Добавить</button></form></div>`;
+  const close=()=>overlay.remove();overlay.querySelector(".close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};overlay.onkeydown=e=>{if(e.key==="Escape")close()};
+  const valid=(name,old)=>{if(!name)return false;if(name.includes("|||")){alert("Название не должно содержать |||.");return false}if(state.subjects.some(n=>n!==old&&n.toLocaleLowerCase()===name.toLocaleLowerCase())){alert("Такой предмет уже есть в этом семестре.");return false}return true};
+  const draw=()=>{const list=overlay.querySelector(".subject-manager-list");list.innerHTML="";state.subjects.forEach(name=>{const row=document.createElement("div");row.className="subject-row";const label=document.createElement("span");label.textContent=name;const button=document.createElement("button");button.className="small-btn neo";button.textContent="Переименовать";button.onclick=()=>{const entered=prompt("Новое название предмета",name);if(entered===null)return;const next=entered.trim();if(!valid(next,name)||next===name)return;renameSubject(name,next);save();refreshAllViews();draw()};row.append(label,button);list.append(row)})};
+  overlay.querySelector("form").onsubmit=e=>{e.preventDefault();const input=overlay.querySelector("input"),name=input.value.trim();if(!valid(name))return;state.subjects.push(name);save();refreshAllViews();draw();input.value="";input.focus()};
+  document.body.append(overlay);draw();overlay.querySelector("input").focus();
+}
+document.querySelectorAll(".semester-tab").forEach(el=>el.onclick=()=>switchSemester(el.dataset.semester));
+document.getElementById("manageSubjects").onclick=manageSubjects;
+renderSubjects();renderTimer();updateStats();updateTopicFilters();renderDailyCards();renderHistorySummary();pickCard();initCloud();
 </script>
 </body>
 </html>
