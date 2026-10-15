@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru" class="review-locked">
+<html lang="de" class="review-locked">
 <head>
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=2">
 <link rel="icon" type="image/x-icon" href="./windows-icon.ico">
@@ -7,7 +7,7 @@
 <link rel="manifest" href="./site.webmanifest">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Definitionen — интервальное повторение</title>
+<title>Definitionen — Spaced Repetition</title>
 <script>
 window.MathJax={
   tex:{inlineMath:[["\\(","\\)"],["$","$"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true},
@@ -77,7 +77,7 @@ button:active{transform:translateY(1px);box-shadow:inset 4px 4px 9px rgba(166,17
 .math-help{display:block;margin-top:6px;color:var(--muted);font-size:11px}
 .card-copy strong{font-weight:800;color:inherit}
 .math-toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.math-insert,.format-insert{border:1px solid rgba(255,255,255,.88);padding:7px 10px;border-radius:13px;font-family:"Cambria Math","STIX Two Math",serif;font-weight:700}
-.math-preview{display:none;width:100%;max-width:100%;min-width:0;margin-top:12px;padding:14px 16px;border-radius:17px;line-height:1.55;overflow:hidden;overflow-wrap:anywhere;word-break:break-word}.math-preview.has-content{display:block}.math-preview::before{content:"Предпросмотр";display:block;margin-bottom:8px;color:var(--muted);font:700 11px "Segoe UI Variable Text","Segoe UI",sans-serif}
+.math-preview{display:none;width:100%;max-width:100%;min-width:0;margin-top:12px;padding:14px 16px;border-radius:17px;line-height:1.55;overflow:hidden;overflow-wrap:anywhere;word-break:break-word}.math-preview.has-content{display:block}.math-preview::before{content:"Vorschau";display:block;margin-bottom:8px;color:var(--muted);font:700 11px "Segoe UI Variable Text","Segoe UI",sans-serif}
 .math-preview mjx-container,.card-copy mjx-container{width:100%;max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
 .math-preview mjx-container svg,.card-copy mjx-container svg{max-width:none}
 .math-preview mjx-container:not([display="true"]),.card-copy mjx-container:not([display="true"]){width:auto;max-width:100%}
@@ -157,7 +157,7 @@ select,input,textarea{
 .multi-select-toggle::after{content:"⌄";position:absolute;right:14px;top:50%;transform:translateY(-55%);color:var(--muted);font-size:18px}
 .multi-select.open .multi-select-toggle::after{transform:translateY(-35%) rotate(180deg)}
 .multi-select-menu{display:none;position:absolute;z-index:50;left:0;right:0;top:calc(100% + 7px);max-height:280px;overflow:auto;padding:9px;border-radius:16px;background:var(--panel);box-shadow:10px 10px 24px rgba(154,161,157,.55),-7px -7px 18px #fff;border:1px solid rgba(255,255,255,.9)}
-.multi-select.open .multi-select-menu{display:grid;gap:3px}
+.multi-select.open .multi-select-menu{display:grid;gap:3px;align-content:start;grid-auto-rows:max-content;overscroll-behavior:contain}
 .multi-select-option{display:flex!important;align-items:flex-start;gap:9px;margin:0!important;padding:8px 9px;border-radius:11px;cursor:pointer;font-size:12px!important;line-height:1.3}
 .multi-select-option:hover{background:rgba(120,141,130,.09)}
 .multi-select-option input{width:auto!important;margin:1px 0 0;flex:none;accent-color:var(--accent2)}
@@ -308,67 +308,66 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
   <div class="topbar">
     <div class="brand">
       <h1>Definitionen</h1>
-      <p>Интервальное повторение к экзаменам</p>
     </div>
-    <nav class="tabs neo" aria-label="Разделы">
-      <button class="tab active" data-view="review">Повторение</button>
-      <button class="tab" data-view="library">Карточки</button>
-      <button class="tab" data-view="add">Добавить</button>
+    <nav class="tabs neo" aria-label="Bereiche">
+      <button class="tab active" data-view="review">Wiederholen</button>
+      <button class="tab" data-view="library">Karten</button>
+      <button class="tab" data-view="add">Hinzufügen</button>
     </nav>
     <div class="sync-box">
-      <div id="syncStatus" class="sync-status neo-inset">Облако: не подключено</div>
-      <button id="syncBtn" class="sync-btn neo" type="button">Войти</button>
+      <div id="syncStatus" class="sync-status neo-inset">Cloud: nicht verbunden</div>
+      <button id="syncBtn" class="sync-btn neo" type="button">Anmelden</button>
     </div>
-    <button id="menuToggle" class="menu-toggle neo" type="button" aria-label="Открыть меню" aria-expanded="false"><span></span><span></span><span></span></button>
+    <button id="menuToggle" class="menu-toggle neo" type="button" aria-label="Menü öffnen" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 
-  <div class="semester-bar neo" aria-label="Выбор семестра">
-    <div class="semester-options"><button type="button" class="semester-tab tab" data-semester="4">4 семестр</button><button type="button" class="semester-tab tab" data-semester="5">5 семестр</button></div>
-    <span id="semesterContext"></span><button id="manageSubjects" type="button" class="small-btn neo">Предметы · изменить / добавить</button>
+  <div class="semester-bar neo" aria-label="Semester auswählen">
+    <div class="semester-options"><button type="button" class="semester-tab tab" data-semester="4">4. Semester</button><button type="button" class="semester-tab tab" data-semester="5">5. Semester</button></div>
+    <span id="semesterContext"></span><button id="manageSubjects" type="button" class="small-btn neo">Fächer · bearbeiten / hinzufügen</button>
   </div>
   <div id="drawerBackdrop" class="drawer-backdrop"></div>
-  <aside id="mobileDrawer" class="mobile-drawer" aria-label="Мобильное меню"></aside>
+  <aside id="mobileDrawer" class="mobile-drawer" aria-label="Mobiles Menü"></aside>
 
   <section id="reviewView" class="view active">
     <div class="grid">
       <div class="stats neo">
-        <h2>Сегодня</h2>
+        <h2>Heute</h2>
         <div class="stat-grid">
-          <div class="stat neo-inset"><b id="todayReviews">0</b><span>ответов</span></div>
-          <div class="stat neo-inset"><b id="todayGood">0</b><span>вспомнила</span></div>
-          <div class="stat neo-inset"><b id="weakCount">0</b><span>требуют внимания</span></div>
-          <div class="stat neo-inset"><b id="knownCount">0</b><span>уже знакомы</span></div>
+          <div class="stat neo-inset"><b id="todayReviews">0</b><span>Antworten</span></div>
+          <div class="stat neo-inset"><b id="todayGood">0</b><span>gewusst</span></div>
+          <div class="stat neo-inset"><b id="weakCount">0</b><span>noch üben</span></div>
+          <div class="stat neo-inset"><b id="knownCount">0</b><span>bereits bekannt</span></div>
         </div>
         <div class="progress-wrap">
-          <div class="progress-label"><span>Доля изученных</span><span id="masteryLabel">0%</span></div>
+          <div class="progress-label"><span>Lernfortschritt</span><span id="masteryLabel">0%</span></div>
           <div class="progress neo-inset"><div id="masteryBar" style="width:0"></div></div>
         </div>
       </div>
-      <div id="desktopControls" class="desktop-controls" aria-label="Навигация и синхронизация"></div>
+      <div id="desktopControls" class="desktop-controls" aria-label="Navigation und Synchronisierung"></div>
 
       <div class="column left-column">
         <div class="timer neo">
-          <h2>Учебная сессия</h2>
-          <div id="timerFace" class="timer-face"><div class="timer-value"><b id="timerValue">25:00</b><span>фокус-время</span></div></div>
-          <div class="timer-actions"><button id="timerToggle" class="neo">Старт</button><button id="timerReset" class="neo">Сбросить</button></div>
+          <h2>Lernsitzung</h2>
+          <div id="timerFace" class="timer-face"><div class="timer-value"><b id="timerValue">25:00</b><span>Fokuszeit</span></div></div>
+          <div class="timer-actions"><button id="timerToggle" class="neo">Start</button><button id="timerReset" class="neo">Zurücksetzen</button></div>
         </div>
         <div class="filters neo">
-          <h2 style="margin:0 0 8px;font-size:18px">Что повторять</h2>
+          <h2 style="margin:0 0 8px;font-size:18px">Lernstoff auswählen</h2>
           <div class="subject-checks">
             <label class="check"><input type="checkbox" class="subjectFilter" value="Algorithmen & Programmierung" checked> Algorithmen & Programmierung</label>
             <label class="check"><input type="checkbox" class="subjectFilter" value="Digitaltechnik" checked> Digitaltechnik</label>
             <label class="check"><input type="checkbox" class="subjectFilter" value="Diskrete Mathematik" checked> Diskrete Mathematik</label>
           </div>
-          <label>Темы для тренировки (можно несколько)</label>
-          <div class="multi-select" data-for="reviewTopic"><button class="multi-select-toggle neo-inset" type="button" aria-expanded="false">Все выбранные предметы и темы</button><div class="multi-select-menu"></div><select id="reviewTopic" class="multi-select-source" multiple aria-label="Темы для тренировки"><option value="">Все выбранные предметы и темы</option></select></div>
-          <label>Режим</label>
+          <label>Übungsthemen (Mehrfachauswahl)</label>
+          <div class="multi-select" data-for="reviewTopic"><button class="multi-select-toggle neo-inset" type="button" aria-expanded="false">Alle ausgewählten Fächer und Themen</button><div class="multi-select-menu"></div><select id="reviewTopic" class="multi-select-source" multiple aria-label="Übungsthemen"><option value="">Alle ausgewählten Fächer und Themen</option></select></div>
+          <label>Modus</label>
           <select id="modeSelect" class="neo-inset">
-            <option value="smart">Умная смесь</option>
-            <option value="weak">Только слабые и новые</option>
-            <option value="random">Полностью случайно</option>
+            <option value="smart">Intelligente Mischung</option>
+            <option value="weak">Nur neue und unsichere Karten</option>
+            <option value="random">Zufällig</option>
           </select>
           <div class="footer-actions">
-            <button id="skipBtn" class="small-btn neo">Другая карточка</button>
+            <button id="skipBtn" class="small-btn neo">Andere Karte</button>
           </div>
         </div>
       </div>
@@ -377,31 +376,30 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
         <div class="main-card neo">
           <div class="card-head">
             <div id="subjectPill" class="subject-pill neo-inset">—</div>
-            <div class="card-tools" aria-label="Действия с карточкой">
-              <button id="familiarCurrentBtn" class="card-tool familiarity neo" title="Пометить как знакомую" aria-label="Пометить карточку как знакомую">✓</button>
-              <button id="editCurrentBtn" class="card-tool neo" title="Редактировать" aria-label="Редактировать карточку">✎</button>
-              <button id="deleteCurrentBtn" class="card-tool neo delete-card" title="Удалить" aria-label="Удалить карточку">×</button>
+            <div class="card-tools" aria-label="Kartenaktionen">
+              <button id="familiarCurrentBtn" class="card-tool familiarity neo" title="Als bekannt markieren" aria-label="Karte als bekannt markieren">✓</button>
+              <button id="editCurrentBtn" class="card-tool neo" title="Bearbeiten" aria-label="Karte bearbeiten">✎</button>
+              <button id="deleteCurrentBtn" class="card-tool neo delete-card" title="Löschen" aria-label="Karte löschen">×</button>
             </div>
           </div>
-          <h2 id="term" class="term">Загрузка…</h2>
+          <h2 id="term" class="term">Wird geladen…</h2>
           <p id="question" class="question"></p>
           <div id="answer" class="answer neo-inset"></div>
           <div id="cardMeta" class="card-meta"></div>
           <div class="actions">
-            <button id="revealBtn" class="reveal neo">◉ &nbsp; Показать ответ</button>
+            <button id="revealBtn" class="reveal neo">◉ &nbsp; Antwort anzeigen</button>
             <div id="gradeRow" class="grade-row">
-              <button id="againBtn" class="grade bad neo">Не вспомнила</button>
-              <button id="goodBtn" class="grade good neo">Вспомнила</button>
+              <button id="againBtn" class="grade bad neo">Nicht gewusst</button>
+              <button id="goodBtn" class="grade good neo">Gewusst</button>
             </div>
           </div>
-          <div class="hint">Карточки, которые забываются, получают больший вес и возвращаются чаще. Хорошо знакомые — реже, но не исчезают полностью.</div>
         </div>
         <div class="goal neo">
-          <h2>Цель дня</h2>
+          <h2>Tagesziel</h2>
           <div class="goal-grid">
-            <div class="goal-stat neo-inset"><b>20</b><span>карточек</span></div>
-            <div class="goal-stat neo-inset"><b id="goalDone">0 / 20</b><span>выполнено</span></div>
-            <div class="goal-stat neo-inset"><b id="goalPercent">0%</b><span>прогресс</span></div>
+            <div class="goal-stat neo-inset"><b>20</b><span>Karten</span></div>
+            <div class="goal-stat neo-inset"><b id="goalDone">0 / 20</b><span>erledigt</span></div>
+            <div class="goal-stat neo-inset"><b id="goalPercent">0%</b><span>Fortschritt</span></div>
           </div>
           <div class="progress neo-inset"><div id="goalBar" style="width:0"></div></div>
         </div>
@@ -409,60 +407,59 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
 
       <aside class="column right-column">
         <div class="daily neo">
-          <h2>Карточки дня</h2>
-          <p class="daily-intro">По одной самой сложной карточке из каждого предмета. Ответы показаны полностью.</p>
+          <h2>Karten des Tages</h2>
           <div id="dailyCards" class="daily-list"></div>
         </div>
-        <button id="historyBtn" class="history-launch neo"><b>История повторений</b><span id="historySummary">Пока нет ответов</span></button>
+        <button id="historyBtn" class="history-launch neo"><b>Lernverlauf</b><span id="historySummary">Noch keine Antworten</span></button>
       </aside>
     </div>
   </section>
 
   <section id="libraryView" class="view">
     <div class="library neo">
-      <h2>Библиотека карточек</h2>
+      <h2>Kartenbibliothek</h2>
       <div class="lib-toolbar">
-        <input id="searchInput" class="neo-inset" placeholder="Поиск по термину или определению">
+        <input id="searchInput" class="neo-inset" placeholder="Nach Begriff oder Definition suchen">
         <select id="librarySubject" class="neo-inset">
-          <option value="">Все предметы</option>
+          <option value="">Alle Fächer</option>
           <option>Algorithmen & Programmierung</option>
           <option>Digitaltechnik</option>
           <option>Diskrete Mathematik</option>
         </select>
-        <div class="multi-select" data-for="libraryTopic"><button class="multi-select-toggle neo-inset" type="button" aria-expanded="false">Все темы</button><div class="multi-select-menu"></div><select id="libraryTopic" class="multi-select-source" multiple aria-label="Темы библиотеки"><option value="">Все темы</option></select></div>
+        <div class="multi-select" data-for="libraryTopic"><button class="multi-select-toggle neo-inset" type="button" aria-expanded="false">Alle Themen</button><div class="multi-select-menu"></div><select id="libraryTopic" class="multi-select-source" multiple aria-label="Bibliotheksthemen"><option value="">Alle Themen</option></select></div>
       </div>
       <div id="cardList" class="card-list"></div>
-      <button id="showMoreCards" class="show-more neo" type="button">Показать ещё</button>
+      <button id="showMoreCards" class="show-more neo" type="button">Mehr anzeigen</button>
       <div class="footer-actions">
-        <button id="topicBlockBtn" class="secondary neo">Новый блок тем</button>
-        <button id="exportBtn" class="secondary neo">Экспорт прогресса</button>
-        <button id="importBtn" class="secondary neo">Импорт прогресса</button>
+        <button id="topicBlockBtn" class="secondary neo">Neuer Themenblock</button>
+        <button id="exportBtn" class="secondary neo">Fortschritt exportieren</button>
+        <button id="importBtn" class="secondary neo">Fortschritt importieren</button>
         <input id="importFile" type="file" accept=".json" style="display:none">
-        <button id="resetBtn" class="secondary neo" style="color:var(--danger)">Сбросить прогресс</button>
+        <button id="resetBtn" class="secondary neo" style="color:var(--danger)">Fortschritt zurücksetzen</button>
       </div>
     </div>
   </section>
 
   <section id="addView" class="view">
     <div class="editor neo">
-      <h2 id="formTitle">Новая карточка</h2>
+      <h2 id="formTitle">Neue Karte</h2>
       <form id="cardForm" class="form-grid">
         <input type="hidden" id="editId">
         <div class="form-row">
-          <div><label>Предмет</label><select id="newSubject" class="neo-inset" required>
+          <div><label>Fach</label><select id="newSubject" class="neo-inset" required>
             <option>Algorithmen & Programmierung</option>
             <option>Digitaltechnik</option>
             <option>Diskrete Mathematik</option>
           </select></div>
-          <div><label>Термин</label><input id="newTerm" class="neo-inset" required placeholder="Например: Master-Theorem"></div>
+          <div><label>Begriff</label><input id="newTerm" class="neo-inset" required placeholder="Zum Beispiel: Master-Theorem"></div>
         </div>
-        <div><label>Тема</label><input id="newTopic" class="neo-inset" list="existingTopicOptions" required placeholder="Выберите существующую или введите новую"><datalist id="existingTopicOptions"></datalist></div>
-        <div><label>Типичная экзаменационная формулировка</label><input id="newQuestion" class="neo-inset" placeholder="Например: Definieren Sie …"></div>
-        <div><label>Определение</label><textarea id="newDefinition" class="neo-inset" required placeholder="Краткое точное определение на немецком"></textarea><span class="math-help">Жирный текст: **текст**. Формулы: \(x^2\) внутри строки или \[\frac{a}{b}\] отдельной строкой</span><div class="math-toolbar"><button type="button" class="format-insert neo" data-format="bold" title="Жирный текст"><strong>B</strong></button><button type="button" class="math-insert neo" data-math="inline">x²</button><button type="button" class="math-insert neo" data-math="fraction">a/b</button><button type="button" class="math-insert neo" data-math="sum">Σ</button><button type="button" class="math-insert neo" data-math="set">{x∈X}</button><button type="button" class="math-insert neo" data-math="intersection">⋂</button><button type="button" class="math-insert neo" data-math="union">⋃</button></div><div class="math-preview neo-inset"></div></div>
-        <div><label>Заметка / Merksatz</label><textarea id="newNote" class="neo-inset" style="min-height:80px" placeholder="Необязательно"></textarea></div>
+        <div><label>Thema</label><input id="newTopic" class="neo-inset" list="existingTopicOptions" required placeholder="Vorhandenes Thema auswählen oder neues eingeben"><datalist id="existingTopicOptions"></datalist></div>
+        <div><label>Typische Prüfungsfrage</label><input id="newQuestion" class="neo-inset" placeholder="Zum Beispiel: Definieren Sie …"></div>
+        <div><label>Definition</label><textarea id="newDefinition" class="neo-inset" required placeholder="Kurze, präzise Definition auf Deutsch"></textarea><span class="math-help">Fettdruck: **Text**. Formeln: \(x^2\) im Text oder \[\frac{a}{b}\] als eigene Zeile</span><div class="math-toolbar"><button type="button" class="format-insert neo" data-format="bold" title="Fettdruck"><strong>B</strong></button><button type="button" class="math-insert neo" data-math="inline">x²</button><button type="button" class="math-insert neo" data-math="fraction">a/b</button><button type="button" class="math-insert neo" data-math="sum">Σ</button><button type="button" class="math-insert neo" data-math="set">{x∈X}</button><button type="button" class="math-insert neo" data-math="intersection">⋂</button><button type="button" class="math-insert neo" data-math="union">⋃</button></div><div class="math-preview neo-inset"></div></div>
+        <div><label>Notiz / Merksatz</label><textarea id="newNote" class="neo-inset" style="min-height:80px" placeholder="Optional"></textarea></div>
         <div class="footer-actions">
-          <button class="primary neo" type="submit">Сохранить карточку</button>
-          <button class="secondary neo" type="button" id="cancelEdit" style="display:none">Отмена</button>
+          <button class="primary neo" type="submit">Karte speichern</button>
+          <button class="secondary neo" type="button" id="cancelEdit" style="display:none">Abbrechen</button>
         </div>
       </form>
     </div>
@@ -470,26 +467,26 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
 </div>
 <div id="historyModal" class="history-modal" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
   <div class="history-panel neo">
-    <div class="history-head"><h2 id="historyTitle">История повторений</h2><button id="historyClose" class="neo" aria-label="Закрыть">×</button></div>
+    <div class="history-head"><h2 id="historyTitle">Lernverlauf</h2><button id="historyClose" class="neo" aria-label="Schließen">×</button></div>
     <div id="historyList" class="history-list"></div>
   </div>
 </div>
 <div id="authModal" class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
   <div class="auth-panel neo">
-    <h2 id="authTitle">Синхронизация</h2>
-    <p>Войди тем пользователем Supabase, которого ты создала. Пароль хранится в сессии Supabase и не записывается в карточки.</p>
+    <h2 id="authTitle">Synchronisierung</h2>
+    <p>Melde dich mit deinem Supabase-Konto an. Das Passwort wird in der Supabase-Sitzung verwaltet und nicht in den Karten gespeichert.</p>
     <form id="authForm" class="auth-form">
-      <input id="authEmail" class="neo-inset" type="email" autocomplete="username" placeholder="Email" required>
-      <input id="authPassword" class="neo-inset" type="password" autocomplete="current-password" placeholder="Пароль" required>
+      <input id="authEmail" class="neo-inset" type="email" autocomplete="username" placeholder="E-Mail" required>
+      <input id="authPassword" class="neo-inset" type="password" autocomplete="current-password" placeholder="Passwort" required>
       <div class="auth-actions">
-        <button class="reveal neo" type="submit">Войти</button>
-        <button id="authCancel" class="secondary neo" type="button">Отмена</button>
+        <button class="reveal neo" type="submit">Anmelden</button>
+        <button id="authCancel" class="secondary neo" type="button">Abbrechen</button>
       </div>
       <div id="authError" class="auth-error"></div>
     </form>
   </div>
 </div>
-<div id="toast" class="toast neo">Сохранено</div>
+<div id="toast" class="toast neo">Gespeichert</div>
 
 <script src="data/semester-4.js"></script>
 <script src="data/databases.js"></script>
@@ -582,7 +579,7 @@ function setSyncStatus(text,kind=""){
 function scheduleCloudSave(){
   if(!cloudUser || !supabaseClient)return;
   clearTimeout(cloudSaveTimer);
-  setSyncStatus("Облако: сохраняю…","busy");
+  setSyncStatus("Cloud: wird gespeichert…","busy");
   cloudSaveTimer=setTimeout(()=>pushStateToCloud(),650);
 }
 async function pushStateToCloud(){
@@ -596,9 +593,9 @@ async function pushStateToCloud(){
     if(error)throw error;
     const ts=Date.parse(stamp);
     try{localStorage.setItem(CLOUD_SYNCED_KEY,String(ts));localStorage.setItem(LOCAL_CHANGED_KEY,String(ts));}catch(_){}
-    setSyncStatus("Облако: синхронизировано","online");
+    setSyncStatus("Cloud: synchronisiert","online");
   }catch(e){
-    console.error(e); setSyncStatus("Ошибка синхронизации","error");
+    console.error(e); setSyncStatus("Synchronisierung fehlgeschlagen","error");
   }finally{cloudWriteInProgress=false;}
 }
 function refreshAllViews(){
@@ -609,13 +606,13 @@ function refreshAllViews(){
 }
 async function initialCloudSync(){
   if(!cloudUser || !supabaseClient)return;
-  setSyncStatus("Облако: проверяю…","busy");
+  setSyncStatus("Cloud: wird geprüft…","busy");
   const {data:row,error}=await supabaseClient.from("study_state")
     .select("data,updated_at").eq("user_id",cloudUser.id).maybeSingle();
-  if(error){console.error(error);setSyncStatus("Ошибка загрузки облака","error");return;}
+  if(error){console.error(error);setSyncStatus("Cloud konnte nicht geladen werden","error");return;}
   if(!row){
     await pushStateToCloud();
-    toast("Текущий прогресс сохранён в облако");
+    toast("Aktueller Fortschritt in der Cloud gespeichert");
     return;
   }
   const cloudTs=Date.parse(row.updated_at||0)||0;
@@ -624,7 +621,7 @@ async function initialCloudSync(){
   const localChangedSinceSync=localChanged>lastSynced+1000;
   const cloudChangedSinceSync=cloudTs>lastSynced+1000;
   if(localChangedSinceSync && cloudChangedSinceSync){
-    const useCloud=confirm("Есть изменения и на этом устройстве, и в облаке. OK — загрузить облачную версию. Отмена — оставить эту версию и отправить её в облако.");
+    const useCloud=confirm("Auf diesem Gerät und in der Cloud gibt es Änderungen. OK: Cloud-Version laden. Abbrechen: Diese Version behalten und in die Cloud hochladen.");
     if(!useCloud){await pushStateToCloud();return;}
   }else if(localChangedSinceSync && !cloudChangedSinceSync){
     await pushStateToCloud(); return;
@@ -635,17 +632,17 @@ async function initialCloudSync(){
   safeLocalSave(false);
   try{localStorage.setItem(CLOUD_SYNCED_KEY,String(cloudTs));localStorage.setItem(LOCAL_CHANGED_KEY,String(cloudTs));}catch(_){}
   refreshAllViews();
-  setSyncStatus("Облако: синхронизировано","online");
-  toast("Прогресс загружен из облака");
+  setSyncStatus("Cloud: synchronisiert","online");
+  toast("Fortschritt aus der Cloud geladen");
 }
 async function handleSignedIn(user){
   cloudUser=user;
-  document.getElementById("syncBtn").textContent="Синхронизировать";
-  setSyncStatus("Облако: подключено","online");
+  document.getElementById("syncBtn").textContent="Synchronisieren";
+  setSyncStatus("Cloud: verbunden","online");
   await initialCloudSync();
 }
 async function initCloud(){
-  if(!supabaseClient){setSyncStatus("Supabase не загрузился","error");return;}
+  if(!supabaseClient){setSyncStatus("Supabase konnte nicht geladen werden","error");return;}
   const {data:{session}}=await supabaseClient.auth.getSession();
   if(session?.user) await handleSignedIn(session.user);
 }
@@ -660,8 +657,8 @@ function selectedValues(select){
 function scopeMatchesCard(card,scope){
   const separator=scope.indexOf("|||"),subject=scope.slice(0,separator),value=scope.slice(separator+3);
   if(separator<0||card.subject!==subject)return false;
-  if(value.startsWith("#block#")){const block=(state.topicBlocks||[]).find(item=>item.id===value.slice(7));return !!block&&block.topics.includes(card.topic||"Без темы")}
-  return (card.topic||"Без темы")===value;
+  if(value.startsWith("#block#")){const block=(state.topicBlocks||[]).find(item=>item.id===value.slice(7));return !!block&&block.topics.includes(card.topic||"Ohne Thema")}
+  return (card.topic||"Ohne Thema")===value;
 }
 function renderMultiSelect(select){
   const root=document.querySelector(`.multi-select[data-for="${select.id}"]`);
@@ -693,16 +690,50 @@ function renderMultiSelect(select){
       select.dispatchEvent(new Event("change",{bubbles:true}));
     };
   });
-  const done=document.createElement("button");done.type="button";done.className="multi-select-done";done.textContent="Готово";done.onclick=()=>{root.classList.remove("open");button.setAttribute("aria-expanded","false")};menu.appendChild(done);
+  const done=document.createElement("button");done.type="button";done.className="multi-select-done";done.textContent="Fertig";done.onclick=()=>{root.classList.remove("open");button.setAttribute("aria-expanded","false")};menu.appendChild(done);
   const chosen=[...select.selectedOptions].filter(option=>option.value);
   button.textContent=chosen.length===0
-    ?([...select.options].find(option=>!option.value)?.textContent||"Все темы")
-    :(chosen.length===1?chosen[0].textContent:`Выбрано тем: ${chosen.length}`);
+    ?([...select.options].find(option=>!option.value)?.textContent||"Alle Themen")
+    :(chosen.length===1?chosen[0].textContent:`Ausgewählte Themen: ${chosen.length}`);
   button.onclick=()=>{
     const open=!root.classList.contains("open");
     document.querySelectorAll(".multi-select.open").forEach(item=>{item.classList.remove("open");item.querySelector(".multi-select-toggle").setAttribute("aria-expanded","false")});
     root.classList.toggle("open",open);button.setAttribute("aria-expanded",String(open));
+    if(open)positionTopicMenu(root);
   };
+}
+function positionTopicMenu(root){
+  const menu=root.querySelector(".multi-select-menu");
+  // The mobile drawer already presents the menu as a full-height panel.
+  if(root.closest(".mobile-drawer")&&window.matchMedia("(max-width: 620px)").matches){
+    for(const property of ["position","left","right","top","bottom","width","max-height"])menu.style.removeProperty(property);
+    return;
+  }
+  const rect=root.querySelector(".multi-select-toggle").getBoundingClientRect();
+  const viewport=window.visualViewport;
+  const viewportTop=viewport?viewport.offsetTop:0;
+  const viewportBottom=viewportTop+(viewport?viewport.height:window.innerHeight);
+  const gap=7,margin=12;
+  const above=Math.max(0,rect.top-viewportTop-margin-gap);
+  const below=Math.max(0,viewportBottom-rect.bottom-margin-gap);
+  const upward=below<280&&above>below;
+  const height=Math.min(280,upward?above:below);
+  const width=Math.min(rect.width,window.innerWidth-margin*2);
+  Object.assign(menu.style,{position:"fixed",left:Math.max(margin,Math.min(rect.left,window.innerWidth-margin-width))+"px",right:"auto",width:width+"px",maxHeight:height+"px",top:"auto",bottom:"auto"});
+  if(upward)menu.style.bottom=(window.innerHeight-rect.top+gap)+"px";
+  else menu.style.top=(rect.bottom+gap)+"px";
+}
+function repositionTopicMenus(){
+  document.querySelectorAll(".multi-select.open").forEach(positionTopicMenu);
+}
+window.addEventListener("resize",repositionTopicMenus);
+document.addEventListener("scroll",event=>{
+  if(event.target instanceof Element&&event.target.closest(".multi-select-menu"))return;
+  repositionTopicMenus();
+},true);
+if(window.visualViewport){
+  window.visualViewport.addEventListener("resize",repositionTopicMenus);
+  window.visualViewport.addEventListener("scroll",repositionTopicMenus);
 }
 function eligibleCards(){
   const subs=selectedSubjects(), mode=document.getElementById("modeSelect").value;
@@ -742,7 +773,7 @@ function renderDailyCards(){
   const subjects=state.subjects;
   const picks=subjects.map(dailyPickForSubject).filter(Boolean);
   const el=document.getElementById("dailyCards");
-  el.innerHTML=picks.length?picks.map(c=>`<button class="daily-card neo-inset" data-id="${c.id}" aria-expanded="false"><b>${formatCardText(c.term)}</b><span>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Без темы")}</span><div class="daily-definition card-copy">${formatCardText(c.definition)}</div></button>`).join(""):'<div class="empty">Нет карточек</div>';
+  el.innerHTML=picks.length?picks.map(c=>`<button class="daily-card neo-inset" data-id="${c.id}" aria-expanded="false"><b>${formatCardText(c.term)}</b><span>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Ohne Thema")}</span><div class="daily-definition card-copy">${formatCardText(c.definition)}</div></button>`).join(""):'<div class="empty">Keine Karten</div>';
   typesetMath([el]);
   el.querySelectorAll(".daily-card").forEach(button=>button.onclick=()=>{
     if(window.matchMedia("(max-width:620px)").matches){const expanded=button.classList.toggle("expanded");button.setAttribute("aria-expanded",String(expanded));return}
@@ -754,17 +785,17 @@ function renderHistorySummary(){
   const history=Array.isArray(state.history)?state.history:[];
   const today=history.filter(item=>dateKey(item.ts)===dateKey());
   const good=today.filter(item=>item.good).length;
-  document.getElementById("historySummary").textContent=today.length?`Сегодня: ${today.length} · вспомнила ${good}`:"Пока нет ответов сегодня";
+  document.getElementById("historySummary").textContent=today.length?`Heute: ${today.length} · gewusst ${good}`:"Heute noch keine Antworten";
 }
 function renderHistory(){
   const history=Array.isArray(state.history)?state.history:[],el=document.getElementById("historyList");
-  if(!history.length){el.innerHTML='<div class="empty">История появится после первого ответа</div>';return}
+  if(!history.length){el.innerHTML='<div class="empty">Der Verlauf erscheint nach der ersten Antwort</div>';return}
   el.innerHTML=history.map((item,index)=>{
-    const when=new Date(item.ts).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
-    const card=state.cards.find(c=>c.id===item.id),question=item.question||(card&&card.question)||"",definition=item.definition||(card&&card.definition)||"Карточка была удалена, сохранённого ответа нет.",note=item.note||(card&&card.note)||"";
+    const when=new Date(item.ts).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+    const card=state.cards.find(c=>c.id===item.id),question=item.question||(card&&card.question)||"",definition=item.definition||(card&&card.definition)||"Die Karte wurde gelöscht. Es ist keine Antwort gespeichert.",note=item.note||(card&&card.note)||"";
     const subjectOptions=card?state.subjects.map(subject=>`<option ${subject===card.subject?"selected":""}>${escapeHtml(subject)}</option>`).join(""):"";
-    const editor=card?`<form class="history-inline-editor neo-inset" data-card-id="${escapeHtml(card.id)}"><div><label>Предмет</label><select name="subject" class="neo-inset">${subjectOptions}</select></div><div><label>Тема</label><input name="topic" class="neo-inset" list="existingTopicOptions" required value="${escapeHtml(card.topic||"Eigene Karten")}"></div><div><label>Термин</label><input name="term" class="neo-inset" required value="${escapeHtml(card.term)}"></div><div><label>Вопрос</label><textarea name="question" class="neo-inset">${escapeHtml(card.question||"")}</textarea></div><div><label>Определение</label><textarea name="definition" class="neo-inset" required>${escapeHtml(card.definition||"")}</textarea><span class="math-help">Жирный текст: **текст**. Формулы: \\(x^2\\) или \\[\\frac{a}{b}\\]</span>${mathEditorTools()}</div><div><label>Заметка</label><textarea name="note" class="neo-inset">${escapeHtml(card.note||"")}</textarea></div><div class="history-edit-actions"><button type="submit" class="history-save neo">Сохранить</button><button type="button" class="history-edit-cancel neo">Отмена</button></div></form>`:"";
-    return `<div class="history-item neo-inset" data-history-index="${index}"><button class="history-main" aria-expanded="false"><div><b>${formatCardText(item.term)}</b><span>${escapeHtml(item.subject)}${item.topic?` · ${escapeHtml(item.topic)}`:""} · ${when}</span></div><div class="history-result ${item.good?"good":"bad"}">${item.good?"Вспомнила":"Повторить"}</div></button><div class="history-detail"><div class="history-question card-copy">${formatCardText(question)}</div><div class="history-answer card-copy">${formatCardText(definition)}</div>${note?`<div class="history-note card-copy">${formatCardText(note)}</div>`:""}<button class="history-edit neo" data-card-id="${escapeHtml(item.id)}" ${card?"":"disabled"}>${card?"Редактировать карточку":"Карточка удалена"}</button>${editor}</div></div>`;
+    const editor=card?`<form class="history-inline-editor neo-inset" data-card-id="${escapeHtml(card.id)}"><div><label>Fach</label><select name="subject" class="neo-inset">${subjectOptions}</select></div><div><label>Thema</label><input name="topic" class="neo-inset" list="existingTopicOptions" required value="${escapeHtml(card.topic||"Eigene Karten")}"></div><div><label>Begriff</label><input name="term" class="neo-inset" required value="${escapeHtml(card.term)}"></div><div><label>Frage</label><textarea name="question" class="neo-inset">${escapeHtml(card.question||"")}</textarea></div><div><label>Definition</label><textarea name="definition" class="neo-inset" required>${escapeHtml(card.definition||"")}</textarea><span class="math-help">Fettdruck: **Text**. Formeln: \\(x^2\\) oder \\[\\frac{a}{b}\\]</span>${mathEditorTools()}</div><div><label>Notiz</label><textarea name="note" class="neo-inset">${escapeHtml(card.note||"")}</textarea></div><div class="history-edit-actions"><button type="submit" class="history-save neo">Speichern</button><button type="button" class="history-edit-cancel neo">Abbrechen</button></div></form>`:"";
+    return `<div class="history-item neo-inset" data-history-index="${index}"><button class="history-main" aria-expanded="false"><div><b>${formatCardText(item.term)}</b><span>${escapeHtml(item.subject)}${item.topic?` · ${escapeHtml(item.topic)}`:""} · ${when}</span></div><div class="history-result ${item.good?"good":"bad"}">${item.good?"Gewusst":"Wiederholen"}</div></button><div class="history-detail"><div class="history-question card-copy">${formatCardText(question)}</div><div class="history-answer card-copy">${formatCardText(definition)}</div>${note?`<div class="history-note card-copy">${formatCardText(note)}</div>`:""}<button class="history-edit neo" data-card-id="${escapeHtml(item.id)}" ${card?"":"disabled"}>${card?"Karte bearbeiten":"Karte gelöscht"}</button>${editor}</div></div>`;
   }).join("");
   typesetMath([el]);
   el.querySelectorAll(".history-main").forEach(button=>button.onclick=()=>{
@@ -783,7 +814,7 @@ function renderHistory(){
     save();updateTopicFilters();renderHistory();
     const reopened=document.querySelector(`.history-inline-editor[data-card-id="${CSS.escape(card.id)}"]`);
     if(reopened){const item=reopened.closest(".history-item");item.classList.add("expanded");item.querySelector(".history-main").setAttribute("aria-expanded","true")}
-    if(current&&current.id===card.id)renderCard();toast("Карточка обновлена");
+    if(current&&current.id===card.id)renderCard();toast("Karte aktualisiert");
   });
 }
 function pickCard(){
@@ -803,8 +834,8 @@ function renderEmpty(){
   document.body.classList.remove("card-open");
   document.documentElement.classList.toggle("review-locked",document.body.classList.contains("review-active"));
   document.querySelector(".main-card").classList.remove("answer-revealed");
-  document.getElementById("subjectPill").textContent="Нет активных карточек";
-  document.getElementById("term").textContent="Добавьте определение или измените фильтры";
+  document.getElementById("subjectPill").textContent="Keine aktiven Karten";
+  document.getElementById("term").textContent="Füge eine Definition hinzu oder ändere die Filter";
   document.getElementById("question").textContent="";
   document.getElementById("answer").className="answer";
   document.getElementById("answer").innerHTML="";
@@ -823,14 +854,14 @@ function renderCard(){
   const familiarButton=document.getElementById("familiarCurrentBtn");
   familiarButton.style.display="";
   familiarButton.classList.toggle("active",Boolean(current.manualFamiliar));
-  familiarButton.title=current.manualFamiliar?"Убрать отметку «Знакома»":"Пометить как знакомую";
+  familiarButton.title=current.manualFamiliar?"Markierung „Bekannt“ entfernen":"Als bekannt markieren";
   familiarButton.setAttribute("aria-label",familiarButton.title);
   document.getElementById("deleteCurrentBtn").style.display="";
   document.getElementById("subjectPill").textContent=current.subject;
   const term=document.getElementById("term");
   term.innerHTML=formatCardText(current.term);
   const q=document.getElementById("question");
-  q.innerHTML=formatCardText(current.question || "Сформулируй определение вслух на немецком.");
+  q.innerHTML=formatCardText(current.question || "Formuliere die Definition laut auf Deutsch.");
   const a=document.getElementById("answer");
   a.className="answer";
   a.innerHTML=`<div class="card-copy">${formatCardText(current.definition)}</div>`;
@@ -905,7 +936,7 @@ function formatCardText(text){
     .replace(/@@CODEINLINE(\d+)@@/g,(_,index)=>`<code>${escapeHtml(code[Number(index)]||"")}</code>`);
 }
 function mathEditorTools(){
-  return '<div class="math-toolbar"><button type="button" class="format-insert neo" data-format="bold" title="Жирный текст"><strong>B</strong></button><button type="button" class="math-insert neo" data-math="inline">x²</button><button type="button" class="math-insert neo" data-math="fraction">a/b</button><button type="button" class="math-insert neo" data-math="sum">Σ</button><button type="button" class="math-insert neo" data-math="set">{x∈X}</button><button type="button" class="math-insert neo" data-math="intersection">⋂</button><button type="button" class="math-insert neo" data-math="union">⋃</button></div><div class="math-preview neo-inset"></div>';
+  return '<div class="math-toolbar"><button type="button" class="format-insert neo" data-format="bold" title="Fettdruck"><strong>B</strong></button><button type="button" class="math-insert neo" data-math="inline">x²</button><button type="button" class="math-insert neo" data-math="fraction">a/b</button><button type="button" class="math-insert neo" data-math="sum">Σ</button><button type="button" class="math-insert neo" data-math="set">{x∈X}</button><button type="button" class="math-insert neo" data-math="intersection">⋂</button><button type="button" class="math-insert neo" data-math="union">⋃</button></div><div class="math-preview neo-inset"></div>';
 }
 function typesetMath(elements){
   const run=()=>window.MathJax&&MathJax.typesetPromise&&MathJax.typesetPromise(elements).catch(()=>{});
@@ -923,11 +954,11 @@ function renderMathPreview(textarea){
 }
 
 function statusOf(c){
-  if(!c.definition.trim()) return ["Нужно заполнить","open"];
-  if(c.manualFamiliar) return ["Знакома ✓","known"];
-  if(c.reviews===0) return ["Новая","new"];
-  if(c.streak>=2 && c.correct/c.reviews>=.7) return ["Знакома","known"];
-  return ["Повторить","learning"];
+  if(!c.definition.trim()) return ["Noch auszufüllen","open"];
+  if(c.manualFamiliar) return ["Bekannt ✓","known"];
+  if(c.reviews===0) return ["Neu","new"];
+  if(c.streak>=2 && c.correct/c.reviews>=.7) return ["Bekannt","known"];
+  return ["Wiederholen","learning"];
 }
 function updateStats(){
   const s=state.sessions[dateKey()]||{reviews:0,good:0};
@@ -984,7 +1015,7 @@ function saveLibraryOrderFromDom(){
     const visibleIds=[...group.querySelectorAll(":scope > .lib-item")].map(item=>item.dataset.id);
     if(visibleIds.length)order.cards[key]=mergeVisibleOrder(order.cards[key],allIds,visibleIds);
   });
-  libraryDragClickUntil=Date.now()+350;save();toast("Порядок сохранён");
+  libraryDragClickUntil=Date.now()+350;save();toast("Reihenfolge gespeichert");
 }
 function enableLibraryDragging(){
   const bindDrag=(handle,kind,longPress=false)=>{
@@ -1041,18 +1072,18 @@ function renderLibrary(resetLimit=false){
   const el=document.getElementById("cardList");
   const showMore=document.getElementById("showMoreCards");
   showMore.classList.remove("visible");
-  if(!list.length){el.innerHTML='<div class="empty">Ничего не найдено</div>';showMore.classList.remove("visible");return}
+  if(!list.length){el.innerHTML='<div class="empty">Keine Treffer</div>';showMore.classList.remove("visible");return}
   const groups=[];
   list.forEach(card=>{const key=card.subject+"|||"+(card.topic||"");let group=groups.at(-1);if(!group||group.key!==key){group={key,subject:card.subject,topic:card.topic||"",cards:[]};groups.push(group)}group.cards.push(card)});
   const forceExpanded=!!q||scopes.length>0;
   const topicHtml=group=>`<section class="topic-group ${(forceExpanded||expandedLibraryTopics.has(group.key))?"expanded":""}" data-topic-key="${escapeHtml(group.key)}" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}">
-    <div class="topic-heading-row" title="Нажмите для просмотра карточек; удерживайте для перемещения"><h3 class="topic-heading">${escapeHtml(group.topic||"Без темы")}</h3><button class="rename-topic neo" type="button" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}" title="Переименовать тему" aria-label="Переименовать тему ${escapeHtml(group.topic||"Без темы")}">✎</button></div>
-    ${group.cards.map(c=>{const [txt,cls]=statusOf(c);return `<div class="lib-item neo-inset" data-id="${escapeHtml(c.id)}" role="button" tabindex="0" aria-expanded="false" title="Удерживайте карточку, чтобы изменить порядок">
-      <div><h3>${formatCardText(c.term)}</h3><p>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Без темы")} · ${c.reviews} повторений · ${c.correct} удачных</p></div>
+    <div class="topic-heading-row" title="Klicken, um Karten anzuzeigen; zum Verschieben gedrückt halten"><h3 class="topic-heading">${escapeHtml(group.topic||"Ohne Thema")}</h3><button class="rename-topic neo" type="button" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}" title="Thema umbenennen" aria-label="Thema umbenennen ${escapeHtml(group.topic||"Ohne Thema")}">✎</button></div>
+    ${group.cards.map(c=>{const [txt,cls]=statusOf(c);return `<div class="lib-item neo-inset" data-id="${escapeHtml(c.id)}" role="button" tabindex="0" aria-expanded="false" title="Karte gedrückt halten, um die Reihenfolge zu ändern">
+      <div><h3>${formatCardText(c.term)}</h3><p>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Ohne Thema")} · ${c.reviews} Wiederholungen · ${c.correct} richtig</p></div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="badge ${cls} neo familiarity-toggle" data-id="${c.id}" title="Изменить отметку знакомости">${txt}</button>
+        <button class="badge ${cls} neo familiarity-toggle" data-id="${c.id}" title="Bekannt-Markierung ändern">${txt}</button>
         <button class="small-btn neo editCard" data-id="${c.id}">✎</button>
-        <button class="small-btn neo delete-card" data-id="${c.id}" title="Удалить карточку" aria-label="Удалить карточку ${escapeHtml(c.term)}">&times;</button>
+        <button class="small-btn neo delete-card" data-id="${c.id}" title="Karte löschen" aria-label="Karte löschen ${escapeHtml(c.term)}">&times;</button>
       </div>
       <div class="lib-detail neo-inset"><div class="lib-question card-copy">${formatCardText(c.question||"")}</div><div class="lib-answer card-copy">${formatCardText(c.definition||"")}</div>${c.note?`<div class="lib-note card-copy">${formatCardText(c.note)}</div>`:""}</div>
     </div>`}).join("")}
@@ -1061,11 +1092,11 @@ function renderLibrary(resetLimit=false){
   [...new Set(groups.map(group=>group.subject))].forEach(subject=>{
     const subjectGroups=groups.filter(group=>group.subject===subject),subjectBlocks=blocks.filter(block=>block.subject===subject),groupedTopics=new Set();let content="";
     subjectBlocks.forEach(block=>{
-      const blockGroups=subjectGroups.filter(group=>block.topics.includes(group.topic||"Без темы"));
-      blockGroups.forEach(group=>groupedTopics.add(group.topic||"Без темы"));
-      content+=`<section class="topic-block ${(forceExpanded||expandedTopicBlocks.has(block.id))?"expanded":""}" data-block-id="${escapeHtml(block.id)}"><div class="topic-block-head" role="button" tabindex="0"><div><div class="topic-block-subject">${blockGroups.length} тем</div><h3>${escapeHtml(block.name)}</h3></div><button class="topic-block-edit neo" type="button" data-block-id="${escapeHtml(block.id)}">Настроить</button></div>${blockGroups.length?blockGroups.map(topicHtml).join(""):'<div class="empty topic-block-empty">В блоке пока нет доступных тем</div>'}</section>`;
+      const blockGroups=subjectGroups.filter(group=>block.topics.includes(group.topic||"Ohne Thema"));
+      blockGroups.forEach(group=>groupedTopics.add(group.topic||"Ohne Thema"));
+      content+=`<section class="topic-block ${(forceExpanded||expandedTopicBlocks.has(block.id))?"expanded":""}" data-block-id="${escapeHtml(block.id)}"><div class="topic-block-head" role="button" tabindex="0"><div><div class="topic-block-subject">${blockGroups.length} Themen</div><h3>${escapeHtml(block.name)}</h3></div><button class="topic-block-edit neo" type="button" data-block-id="${escapeHtml(block.id)}">Bearbeiten</button></div>${blockGroups.length?blockGroups.map(topicHtml).join(""):'<div class="empty topic-block-empty">In diesem Block sind noch keine Themen verfügbar</div>'}</section>`;
     });
-    content+=subjectGroups.filter(group=>!groupedTopics.has(group.topic||"Без темы")).map(topicHtml).join("");
+    content+=subjectGroups.filter(group=>!groupedTopics.has(group.topic||"Ohne Thema")).map(topicHtml).join("");
     libraryHtml+=`<section class="subject-group" data-subject="${escapeHtml(subject)}"><h2 class="subject-group-title">${escapeHtml(subject)}</h2>${content}</section>`;
   });
   el.innerHTML=libraryHtml;
@@ -1091,24 +1122,24 @@ function renderLibrary(resetLimit=false){
 function editTopicBlock(blockId=null){
   const existing=blockId?(state.topicBlocks||[]).find(block=>block.id===blockId):null;
   const subject=existing?.subject||document.getElementById("librarySubject").value;
-  if(!subject){alert("Сначала выберите один предмет в фильтре библиотеки.");return}
-  const topics=[...new Set(state.cards.filter(card=>card.subject===subject).map(card=>card.topic||"Без темы"))].sort((a,b)=>a.localeCompare(b,"de"));
+  if(!subject){alert("Wähle zuerst ein Fach im Bibliotheksfilter aus.");return}
+  const topics=[...new Set(state.cards.filter(card=>card.subject===subject).map(card=>card.topic||"Ohne Thema"))].sort((a,b)=>a.localeCompare(b,"de"));
   const occupied=new Set((state.topicBlocks||[]).filter(block=>block.subject===subject&&block.id!==blockId).flatMap(block=>block.topics));
   const available=topics.filter(topic=>!occupied.has(topic)||(existing?.topics||[]).includes(topic));
   const overlay=document.createElement("div");overlay.className="history-modal show";
-  overlay.innerHTML=`<div class="history-panel neo"><div class="history-head"><h2>${existing?"Настроить блок":"Новый блок тем"}</h2><button class="neo topic-block-close" type="button">×</button></div><form class="form-grid topic-block-form"><div><label>Название блока</label><input name="name" class="neo-inset" required value="${escapeHtml(existing?.name||"")}" placeholder="Например: Графы"></div><div><label>Темы внутри блока</label><div class="subject-checks neo-inset" style="padding:12px;max-height:45vh;overflow:auto">${available.map(topic=>`<label class="check"><input type="checkbox" name="topics" value="${escapeHtml(topic)}" ${(existing?.topics||[]).includes(topic)?"checked":""}> ${escapeHtml(topic)}</label>`).join("")||'<div class="empty">Нет свободных тем</div>'}</div></div><div class="footer-actions"><button class="primary neo" type="submit">Сохранить</button>${existing?'<button class="secondary neo topic-block-delete" type="button" style="color:var(--danger)">Удалить блок</button>':""}</div></form></div>`;
+  overlay.innerHTML=`<div class="history-panel neo"><div class="history-head"><h2>${existing?"Themenblock bearbeiten":"Neuer Themenblock"}</h2><button class="neo topic-block-close" type="button">×</button></div><form class="form-grid topic-block-form"><div><label>Name des Themenblocks</label><input name="name" class="neo-inset" required value="${escapeHtml(existing?.name||"")}" placeholder="Zum Beispiel: Graphen"></div><div><label>Themen in diesem Block</label><div class="subject-checks neo-inset" style="padding:12px;max-height:45vh;overflow:auto">${available.map(topic=>`<label class="check"><input type="checkbox" name="topics" value="${escapeHtml(topic)}" ${(existing?.topics||[]).includes(topic)?"checked":""}> ${escapeHtml(topic)}</label>`).join("")||'<div class="empty">Keine verfügbaren Themen</div>'}</div></div><div class="footer-actions"><button class="primary neo" type="submit">Speichern</button>${existing?'<button class="secondary neo topic-block-delete" type="button" style="color:var(--danger)">Themenblock löschen</button>':""}</div></form></div>`;
   document.body.appendChild(overlay);const close=()=>overlay.remove();
   overlay.querySelector(".topic-block-close").onclick=close;overlay.onclick=event=>{if(event.target===overlay)close()};
-  overlay.querySelector(".topic-block-form").onsubmit=event=>{event.preventDefault();const form=event.currentTarget,name=form.elements.name.value.trim(),selected=[...form.querySelectorAll('[name="topics"]:checked')].map(input=>input.value);if(!name||!selected.length){alert("Введите название и выберите хотя бы одну тему.");return}state.topicBlocks=state.topicBlocks||[];if(existing){existing.name=name;existing.topics=selected}else state.topicBlocks.push({id:"block_"+Date.now(),subject,name,topics:selected});save();close();updateTopicFilters();renderLibrary();toast("Блок тем сохранён")};
-  const remove=overlay.querySelector(".topic-block-delete");if(remove)remove.onclick=()=>{if(confirm(`Удалить блок «${existing.name}»? Темы и карточки останутся.`)){state.topicBlocks=state.topicBlocks.filter(block=>block.id!==existing.id);save();close();updateTopicFilters();renderLibrary();toast("Блок удалён")}};
+  overlay.querySelector(".topic-block-form").onsubmit=event=>{event.preventDefault();const form=event.currentTarget,name=form.elements.name.value.trim(),selected=[...form.querySelectorAll('[name="topics"]:checked')].map(input=>input.value);if(!name||!selected.length){alert("Gib einen Namen ein und wähle mindestens ein Thema aus.");return}state.topicBlocks=state.topicBlocks||[];if(existing){existing.name=name;existing.topics=selected}else state.topicBlocks.push({id:"block_"+Date.now(),subject,name,topics:selected});save();close();updateTopicFilters();renderLibrary();toast("Themenblock gespeichert")};
+  const remove=overlay.querySelector(".topic-block-delete");if(remove)remove.onclick=()=>{if(confirm(`Themenblock „${existing.name}“ löschen? Themen und Karten bleiben erhalten.`)){state.topicBlocks=state.topicBlocks.filter(block=>block.id!==existing.id);save();close();updateTopicFilters();renderLibrary();toast("Themenblock gelöscht")}};
 }
 function fillTopicSelect(select,subjects){
   const previous=new Set(selectedValues(select));
-  const usedSubjects=subjects.length?subjects:[...new Set(state.cards.map(card=>card.subject))];let html='<option value="">Все темы и блоки</option>';
+  const usedSubjects=subjects.length?subjects:[...new Set(state.cards.map(card=>card.subject))];let html='<option value="">Alle Themen und Themenblöcke</option>';
   for(const subject of usedSubjects){
-    const topics=[...new Set(state.cards.filter(card=>card.subject===subject).map(card=>card.topic||"Без темы"))];
+    const topics=[...new Set(state.cards.filter(card=>card.subject===subject).map(card=>card.topic||"Ohne Thema"))];
     const blocks=(state.topicBlocks||[]).filter(block=>block.subject===subject);
-    html+=`<optgroup label="${escapeHtml(subject)}">${blocks.map(block=>`<option value="${escapeHtml(subject+"|||#block#"+block.id)}">▣ ${escapeHtml(block.name)} (весь блок)</option>`).join("")}${topics.map(topic=>`<option value="${escapeHtml(subject+"|||"+topic)}">${escapeHtml(topic)}</option>`).join("")}</optgroup>`;
+    html+=`<optgroup label="${escapeHtml(subject)}">${blocks.map(block=>`<option value="${escapeHtml(subject+"|||#block#"+block.id)}">▣ ${escapeHtml(block.name)} (gesamter Block)</option>`).join("")}${topics.map(topic=>`<option value="${escapeHtml(subject+"|||"+topic)}">${escapeHtml(topic)}</option>`).join("")}</optgroup>`;
   }
   select.innerHTML=html;
   [...select.options].forEach(option=>option.selected=previous.has(option.value));
@@ -1117,11 +1148,11 @@ function fillTopicSelect(select,subjects){
 }
 function fillReviewTopicSelect(){
   const select=document.getElementById("reviewTopic"),previous=new Set(selectedValues(select)),subjects=selectedSubjects();
-  let html='<option value="">Все выбранные предметы и темы</option>';
+  let html='<option value="">Alle ausgewählten Fächer und Themen</option>';
   for(const subject of subjects){
-    const topics=[...new Set(state.cards.filter(c=>c.subject===subject).map(c=>c.topic||"Без темы"))];
+    const topics=[...new Set(state.cards.filter(c=>c.subject===subject).map(c=>c.topic||"Ohne Thema"))];
     const blocks=(state.topicBlocks||[]).filter(block=>block.subject===subject);
-    html+=`<optgroup label="${escapeHtml(subject)}">${blocks.map(block=>`<option value="${escapeHtml(subject+"|||#block#"+block.id)}">▣ ${escapeHtml(block.name)} (весь блок)</option>`).join("")}${topics.map(topic=>`<option value="${escapeHtml(subject+"|||"+topic)}">${escapeHtml(topic)}</option>`).join("")}</optgroup>`;
+    html+=`<optgroup label="${escapeHtml(subject)}">${blocks.map(block=>`<option value="${escapeHtml(subject+"|||#block#"+block.id)}">▣ ${escapeHtml(block.name)} (gesamter Block)</option>`).join("")}${topics.map(topic=>`<option value="${escapeHtml(subject+"|||"+topic)}">${escapeHtml(topic)}</option>`).join("")}</optgroup>`;
   }
   select.innerHTML=html;
   [...select.options].forEach(option=>option.selected=previous.has(option.value));
@@ -1152,13 +1183,13 @@ function toggleFamiliar(id){
   card.manualFamiliar=!card.manualFamiliar;
   save();renderLibrary();
   if(current&&current.id===id)renderCard();
-  toast(card.manualFamiliar?"Карточка помечена как знакомая":"Отметка «Знакома» снята");
+  toast(card.manualFamiliar?"Karte als bekannt markiert":"Markierung „Bekannt“ entfernt");
 }
 function renameTopic(subject,oldTopic){
-  const entered=prompt(`Новое название темы «${oldTopic}»:`,oldTopic);
+  const entered=prompt(`Neuer Name für das Thema „${oldTopic}“:`,oldTopic);
   if(entered===null)return;
   const newTopic=resolveTopicName(subject,entered,oldTopic);
-  if(!newTopic){alert("Название темы не может быть пустым.");return}
+  if(!newTopic){alert("Der Themenname darf nicht leer sein.");return}
   if(newTopic===oldTopic)return;
   const librarySelect=document.getElementById("libraryTopic"),reviewSelect=document.getElementById("reviewTopic");
   const wasSelectedInLibrary=selectedValues(librarySelect).includes(subject+"|||"+oldTopic);
@@ -1184,24 +1215,24 @@ function renameTopic(subject,oldTopic){
   }
   renderLibrary();
   if(current&&cardIds.has(current.id))renderCard();
-  toast("Тема переименована");
+  toast("Thema umbenannt");
 }
 function deleteCard(id){
   const c=state.cards.find(x=>x.id===id); if(!c)return;
-  if(!confirm(`Удалить карточку «${c.term}»? Это действие нельзя отменить.`))return;
+  if(!confirm(`Karte „${c.term}“ löschen? Diese Aktion kann nicht rückgängig gemacht werden.`))return;
   state.cards=state.cards.filter(x=>x.id!==id);
   if(!c.custom){
     state.deletedIds=Array.isArray(state.deletedIds)?state.deletedIds:[];
     if(!state.deletedIds.includes(id))state.deletedIds.push(id);
   }
   if(current&&current.id===id)current=null;
-  save();updateTopicFilters();renderLibrary(true);pickCard();toast("Карточка удалена");
+  save();updateTopicFilters();renderLibrary(true);pickCard();toast("Karte gelöscht");
 }
 function openEdit(id,returnView="library"){
   const c=state.cards.find(x=>x.id===id); if(!c)return;
   editReturnView=returnView;
   setView("add");
-  document.getElementById("formTitle").textContent="Редактировать карточку";
+  document.getElementById("formTitle").textContent="Karte bearbeiten";
   document.getElementById("editId").value=c.id;
   document.getElementById("newSubject").value=c.subject;
   updateTopicFilters();
@@ -1219,7 +1250,7 @@ function clearForm(){
   renderMathPreview(document.getElementById("newDefinition"));
   document.querySelectorAll("#cardForm textarea").forEach(autoResizeTextarea);
   document.getElementById("editId").value="";
-  document.getElementById("formTitle").textContent="Новая карточка";
+  document.getElementById("formTitle").textContent="Neue Karte";
   document.getElementById("cancelEdit").style.display="none";
 }
 function setView(name){
@@ -1275,7 +1306,7 @@ const timer=document.querySelector("#reviewView .timer");
 const historyPanel=document.querySelector("#historyModal .history-panel");
 const historyPanelHome=document.createComment("history-panel-home");
 historyPanel.parentNode.insertBefore(historyPanelHome,historyPanel);
-timer.setAttribute("role","button");timer.setAttribute("tabindex","0");timer.setAttribute("aria-label","Запустить таймер");
+timer.setAttribute("role","button");timer.setAttribute("tabindex","0");timer.setAttribute("aria-label","Timer starten");
 const timerHome=document.createComment("timer-home");
 timer.parentNode.insertBefore(timerHome,timer);
 const movable=[...document.querySelectorAll(".topbar>.tabs,#reviewView .stats,#reviewView .filters,#reviewView .daily,#reviewView .history-launch")];
@@ -1323,7 +1354,7 @@ document.addEventListener("click",e=>{
   const button=e.target.closest(".math-insert,.format-insert");if(!button)return;
   const form=button.closest("form"),textarea=form.querySelector('textarea[name="definition"],#newDefinition');
   if(button.dataset.format==="bold"){
-    const start=textarea.selectionStart,end=textarea.selectionEnd,selected=textarea.value.slice(start,end)||"текст";
+    const start=textarea.selectionStart,end=textarea.selectionEnd,selected=textarea.value.slice(start,end)||"Text";
     textarea.setRangeText(`**${selected}**`,start,end,"select");textarea.focus();autoResizeTextarea(textarea);renderMathPreview(textarea);return;
   }
   const templates={inline:"\\(x^2\\)",fraction:"\\[\n\\frac{a}{b}\n\\]",sum:"\\[\n\\sum_{i=1}^{n} a_i\n\\]",set:"\\[\n\\{x \\in X \\mid P(x)\\}\n\\]",intersection:"\\[\n\\bigcap_{i\\in I} A_i\n\\]",union:"\\[\n\\bigcup_{i\\in I} A_i\n\\]"};
@@ -1344,20 +1375,20 @@ function renderTimer(){
   document.getElementById("timerFace").style.setProperty("--timer-progress",Math.round((TIMER_TOTAL-timerLeft)/TIMER_TOTAL*100)+"%");
 }
 function stopTimer(){
-  clearInterval(timerInterval);timerInterval=null;timer.classList.remove("timer-running");document.getElementById("timerToggle").textContent=timerLeft?"Продолжить":"Готово";
+  clearInterval(timerInterval);timerInterval=null;timer.classList.remove("timer-running");document.getElementById("timerToggle").textContent=timerLeft?"Fortsetzen":"Fertig";
 }
 function toggleTimer(){
   if(timerInterval){stopTimer();return}
   if(!timerLeft)timerLeft=TIMER_TOTAL;
   timer.classList.add("timer-running");
-  document.getElementById("timerToggle").textContent="Пауза";
+  document.getElementById("timerToggle").textContent="Pause";
   timerInterval=setInterval(()=>{timerLeft--;renderTimer();if(timerLeft<=0)stopTimer()},1000);
 }
 document.getElementById("timerToggle").onclick=toggleTimer;
 timer.onclick=e=>{if(mobileQuery.matches&&!e.target.closest(".timer-actions"))toggleTimer()};
 timer.onkeydown=e=>{if(mobileQuery.matches&&(e.key==="Enter"||e.key===" ")){e.preventDefault();toggleTimer()}};
 document.getElementById("timerReset").onclick=()=>{
-  clearInterval(timerInterval);timerInterval=null;timer.classList.remove("timer-running");timerLeft=TIMER_TOTAL;renderTimer();document.getElementById("timerToggle").textContent="Старт";
+  clearInterval(timerInterval);timerInterval=null;timer.classList.remove("timer-running");timerLeft=TIMER_TOTAL;renderTimer();document.getElementById("timerToggle").textContent="Start";
 };
 
 document.getElementById("cardForm").onsubmit=e=>{
@@ -1379,7 +1410,7 @@ document.getElementById("cardForm").onsubmit=e=>{
     state.cards.push({...data,id:"custom_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),custom:true,manualFamiliar:false,reviews:0,correct:0,lapses:0,streak:0,intervalDays:0,dueAt:0,lastReviewed:0});
   }
   const target=id?editReturnView:"library";
-  save();clearForm();updateTopicFilters();toast("Карточка сохранена");setView(target);
+  save();clearForm();updateTopicFilters();toast("Karte gespeichert");setView(target);
   if(target==="review")renderCard();else{renderLibrary(true);pickCard();}
 };
 
@@ -1390,13 +1421,13 @@ document.getElementById("exportBtn").onclick=()=>{
 document.getElementById("importBtn").onclick=()=>document.getElementById("importFile").click();
 document.getElementById("importFile").onchange=async e=>{
   const f=e.target.files[0];if(!f)return;
-  try{const data=JSON.parse(await f.text());if(!Array.isArray(data.cards)&&!(data.semesters&&Array.isArray(data.semesters["4"]?.cards)&&Array.isArray(data.semesters["5"]?.cards)))throw 0;state=restoreSemesters(data);save();refreshAllViews();renderLibrary();toast("Прогресс импортирован")}catch(_){alert("Не удалось прочитать файл прогресса.");}
+  try{const data=JSON.parse(await f.text());if(!Array.isArray(data.cards)&&!(data.semesters&&Array.isArray(data.semesters["4"]?.cards)&&Array.isArray(data.semesters["5"]?.cards)))throw 0;state=restoreSemesters(data);save();refreshAllViews();renderLibrary();toast("Fortschritt importiert")}catch(_){alert("Die Fortschrittsdatei konnte nicht gelesen werden.");}
   e.target.value="";
 };
 document.getElementById("resetBtn").onclick=()=>{
-  if(confirm("Сбросить прогресс текущего семестра? Карточки и предметы сохранятся.")){
+  if(confirm("Fortschritt des aktuellen Semesters zurücksetzen? Karten und Fächer bleiben erhalten.")){
     state.cards=state.cards.map(c=>({...c,manualFamiliar:false,reviews:0,correct:0,lapses:0,streak:0,intervalDays:0,dueAt:0,lastReviewed:0}));
-    state.sessions={};state.history=[];save();refreshAllViews();renderLibrary();toast("Прогресс семестра сброшен");
+    state.sessions={};state.history=[];save();refreshAllViews();renderLibrary();toast("Semesterfortschritt zurückgesetzt");
   }
 };
 document.getElementById("syncBtn").onclick=async()=>{
@@ -1416,9 +1447,9 @@ document.getElementById("authForm").onsubmit=async e=>{
   const email=document.getElementById("authEmail").value.trim();
   const password=document.getElementById("authPassword").value;
   const err=document.getElementById("authError"); err.textContent="";
-  setSyncStatus("Облако: вход…","busy");
+  setSyncStatus("Cloud: Anmeldung…","busy");
   const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-  if(error){err.textContent=error.message;setSyncStatus("Ошибка входа","error");return;}
+  if(error){err.textContent="Anmeldung fehlgeschlagen. Prüfe deine Zugangsdaten und versuche es erneut.";setSyncStatus("Anmeldung fehlgeschlagen","error");return;}
   document.getElementById("authPassword").value="";
   document.getElementById("authModal").classList.remove("show");
   await handleSignedIn(data.user);
@@ -1432,11 +1463,11 @@ document.addEventListener("keydown",e=>{
 });
 function renderSubjects(){
   const options=state.subjects.map(name=>`<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
-  for(const id of ["librarySubject","newSubject"]){const el=document.getElementById(id),old=el.value;el.innerHTML=(id==="librarySubject"?'<option value="">Все предметы</option>':"")+options;if(state.subjects.includes(old))el.value=old;}
+  for(const id of ["librarySubject","newSubject"]){const el=document.getElementById(id),old=el.value;el.innerHTML=(id==="librarySubject"?'<option value="">Alle Fächer</option>':"")+options;if(state.subjects.includes(old))el.value=old;}
   document.querySelector(".filters .subject-checks").innerHTML=state.subjects.map(name=>`<label class="check"><input type="checkbox" class="subjectFilter" value="${escapeHtml(name)}" checked> ${escapeHtml(name)}</label>`).join("");
   document.querySelectorAll(".subjectFilter").forEach(el=>el.onchange=()=>{updateTopicFilters();pickCard()});
   document.querySelectorAll(".semester-tab").forEach(el=>{el.classList.toggle("active",el.dataset.semester===activeSemester);el.setAttribute("aria-pressed",String(el.dataset.semester===activeSemester))});
-  document.getElementById("semesterContext").textContent=activeSemester+" семестр · карточки и статистика отдельно";
+  document.getElementById("semesterContext").textContent="";
 }
 function switchSemester(id){
   if(id===activeSemester)return;
@@ -1457,10 +1488,10 @@ function renameSubject(oldName,newName){
 }
 function manageSubjects(){
   const overlay=document.createElement("div");overlay.className="history-modal show";
-  overlay.innerHTML=`<div class="history-panel neo" role="dialog" aria-modal="true" aria-label="Предметы"><div class="history-head"><h2>Предметы · ${activeSemester} семестр</h2><button type="button" class="neo close">×</button></div><div class="subject-manager-list"></div><form class="subject-manager-form"><input class="neo-inset" aria-label="Название нового предмета" placeholder="Название нового предмета" required maxlength="120"><button class="small-btn neo" type="submit">Добавить</button></form></div>`;
+  overlay.innerHTML=`<div class="history-panel neo" role="dialog" aria-modal="true" aria-label="Fächer"><div class="history-head"><h2>Fächer · ${activeSemester}. Semester</h2><button type="button" class="neo close">×</button></div><div class="subject-manager-list"></div><form class="subject-manager-form"><input class="neo-inset" aria-label="Name des neuen Fachs" placeholder="Name des neuen Fachs" required maxlength="120"><button class="small-btn neo" type="submit">Hinzufügen</button></form></div>`;
   const close=()=>overlay.remove();overlay.querySelector(".close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};overlay.onkeydown=e=>{if(e.key==="Escape")close()};
-  const valid=(name,old)=>{if(!name)return false;if(name.includes("|||")){alert("Название не должно содержать |||.");return false}if(state.subjects.some(n=>n!==old&&n.toLocaleLowerCase()===name.toLocaleLowerCase())){alert("Такой предмет уже есть в этом семестре.");return false}return true};
-  const draw=()=>{const list=overlay.querySelector(".subject-manager-list");list.innerHTML="";state.subjects.forEach(name=>{const row=document.createElement("div");row.className="subject-row";const label=document.createElement("span");label.textContent=name;const button=document.createElement("button");button.className="small-btn neo";button.textContent="Переименовать";button.onclick=()=>{const entered=prompt("Новое название предмета",name);if(entered===null)return;const next=entered.trim();if(!valid(next,name)||next===name)return;renameSubject(name,next);save();refreshAllViews();draw()};row.append(label,button);list.append(row)})};
+  const valid=(name,old)=>{if(!name)return false;if(name.includes("|||")){alert("Der Name darf kein ||| enthalten.");return false}if(state.subjects.some(n=>n!==old&&n.toLocaleLowerCase()===name.toLocaleLowerCase())){alert("Dieses Fach existiert in diesem Semester bereits.");return false}return true};
+  const draw=()=>{const list=overlay.querySelector(".subject-manager-list");list.innerHTML="";state.subjects.forEach(name=>{const row=document.createElement("div");row.className="subject-row";const label=document.createElement("span");label.textContent=name;const button=document.createElement("button");button.className="small-btn neo";button.textContent="Umbenennen";button.onclick=()=>{const entered=prompt("Neuer Fachname",name);if(entered===null)return;const next=entered.trim();if(!valid(next,name)||next===name)return;renameSubject(name,next);save();refreshAllViews();draw()};row.append(label,button);list.append(row)})};
   overlay.querySelector("form").onsubmit=e=>{e.preventDefault();const input=overlay.querySelector("input"),name=input.value.trim();if(!valid(name))return;state.subjects.push(name);save();refreshAllViews();draw();input.value="";input.focus()};
   document.body.append(overlay);draw();overlay.querySelector("input").focus();
 }
