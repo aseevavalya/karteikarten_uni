@@ -9,17 +9,17 @@ const context=vm.createContext({window:{},localStorage:{getItem:k=>storage.get(k
 vm.runInContext(script.slice(0,script.indexOf('function safeLocalSave')),context);
 const run=s=>vm.runInContext(s,context);
 assert(run('state.cards.length')>0);
-assert.equal(run('semesters["5"].cards.length'),110);
-assert.equal(run('semesters["5"].cards.filter(c=>c.subject==="Datenbanken").length'),33);
-assert.equal(run('semesters["5"].cards.filter(c=>c.subject==="Theoretische Informatik").length'),77);
+assert.equal(run('semesters["5"].cards.length'),353);
+assert.equal(run('semesters["5"].cards.filter(c=>c.subject==="Datenbanken").length'),223);
+assert.equal(run('semesters["5"].cards.filter(c=>c.subject==="Theoretische Informatik").length'),130);
 assert(run('semesters["5"].cards.every(c=>c.topic && c.definition && c.question && c.note)'));
 assert.equal(run('new Set(defaults.map(c=>c.id)).size'),run('defaults.length'));
-assert.equal(run('new Set(TI_REVIEW_CARDS.map(c=>c.topic)).size'),4);
+assert.equal(run('new Set(TI_REVIEW_CARDS.map(c=>c.topic)).size'),21);
 assert(run('semesters["4"].cards.every(c=>!["Datenbanken","Theoretische Informatik"].includes(c.subject))'));
-assert.equal(run('normalizeState({cards:[]},"5").cards.length'),110);
-assert.equal(run('normalizeState({cards:[],deletedIds:["doc_db_intro_001"]},"5").cards.length'),109);
-assert.equal(run('normalizeState({cards:semesters["5"].cards.filter(c=>c.subject==="Datenbanken")},"5").cards.length'),110);
-assert.equal(run('normalizeState({cards:[],deletedIds:["doc_ti_intro_001"]},"5").cards.filter(c=>c.subject==="Theoretische Informatik").length'),76);
+assert.equal(run('normalizeState({cards:[]},"5").cards.length'),353);
+assert.equal(run('normalizeState({cards:[],deletedIds:["doc_db_intro_001"]},"5").cards.length'),352);
+assert.equal(run('normalizeState({cards:semesters["5"].cards.filter(c=>c.subject==="Datenbanken")},"5").cards.length'),353);
+assert.equal(run('normalizeState({cards:[],deletedIds:["doc_ti_intro_001"]},"5").cards.filter(c=>c.subject==="Theoretische Informatik").length'),129);
 assert.equal(run('normalizeState({cards:[{...TI_REVIEW_CARDS[0],reviews:8,definition:"Edited TI answer"}]},"5").cards.find(c=>c.id==="doc_ti_intro_001").reviews'),8);
 assert.equal(run('normalizeState({cards:[{...TI_REVIEW_CARDS[0],definition:"Edited TI answer"}]},"5").cards.find(c=>c.id==="doc_ti_intro_001").definition'),'Edited TI answer');
 assert.equal(run('normalizeState({cards:[{...semesters["5"].cards[0],reviews:6,definition:"Edited answer"}]},"5").cards[0].reviews'),6);
@@ -36,7 +36,7 @@ run('activeSemester="5";state=semesters["5"];state.cards.push({id:"custom_test",
 const rename=script.slice(script.indexOf('function renameSubject('),script.indexOf('function manageSubjects('));
 vm.runInContext(rename,context);
 run('renameSubject("Datenbanken","Datenbanken II");state=restoreSemesters(JSON.parse(JSON.stringify(snapshot())))');
-assert.equal(run('state.cards.length'),111);
+assert.equal(run('state.cards.length'),354);
 assert.equal(run('state.cards[0].subject'),'Datenbanken II');
 assert.equal(run('state.subjects.includes("Datenbanken")'),false);
 assert.equal(run('state.subjects.includes("Neues Fach")'),true);
@@ -49,3 +49,13 @@ run('activeSemester="4";state=semesters["4"];renameSubject(state.subjects[0],"Re
 assert.equal(run('state.cards[0].subject'),'Renamed');
 assert.equal(run('state.subjects[0]'),'Renamed');
 console.log('Passed: script syntax, legacy migration, semester isolation, persistence, subject rename, custom subjects and reset isolation.');
+
+// Consolidation removes retired built-ins from old saves without changing retained progress or history.
+assert(run(`(()=>{
+  const saved={cards:TI_REVIEW_CARDS.map(c=>({...c,reviews:7})),history:[{...TI_REVIEW_CARDS.find(c=>c.id==='doc_ti_intro_028'),reviews:3}]};
+  const restored=normalizeState(saved,'5');
+  return [...TI_RETIRED_CARD_IDS].every(id=>!restored.cards.some(c=>c.id===id))
+    &&restored.cards.find(c=>c.id==='doc_ti_countability_001').reviews===7
+    &&restored.history.some(c=>c.id==='doc_ti_intro_028')
+    &&['doc_ti_vl_20261022_041','doc_ti_nerode_001','doc_ti_nerode_002'].every(id=>restored.cards.some(c=>c.id===id));
+})()`));

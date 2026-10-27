@@ -780,11 +780,35 @@ const MATH_CARD_TEXT = {
     "question": "Was ist \\(L^*\\) und warum enthält es immer \\(\\lambda\\)?"
   },
   "doc_ti_intro_067": {
-    "definition": "\\[L^+=L\\cdot L^*=\\bigcup_{n=1}^{\\infty}L^n.\\]\nDie positive Hülle enthält Verkettungen von mindestens einem Wort aus \\(L\\). Es gilt \\(\\lambda\\in L^+\\iff\\lambda\\in L\\). Daher ist \\(L^+=L^*\\setminus\\{\\lambda\\}\\) nur dann richtig, wenn \\(\\lambda\\notin L\\).",
+    "definition": "Die positive Hülle enthält alle Verkettungen von mindestens einem Wort aus \\(L\\):\n\\[L^+=L\\cdot L^*=\\bigcup_{n=1}^{\\infty}L^n.\\]\nDer Kleene-Stern erlaubt zusätzlich die Verkettung von null Wörtern:\n\\[L^*=L^+\\cup\\{\\lambda\\}.\\]\nDabei gilt \\(\\lambda\\in L^+\\iff\\lambda\\in L\\). Die Vereinigung mit \\(\\{\\lambda\\}\\) ist daher nicht immer disjunkt. Nur wenn \\(\\lambda\\notin L\\), gilt \\(L^+=L^*\\setminus\\{\\lambda\\}\\).",
     "term": "Kleene-Plus / Positive Hülle \\(L^+\\)",
-    "question": "Was ist \\(L^+\\) und wann enthält es \\(\\lambda\\)?"
+    "question": "Was ist \\(L^+\\), wie hängt es mit \\(L^*\\) zusammen, und wann enthält es \\(\\lambda\\)?"
   },
   "doc_aup_089": {
     "definition": "Der Operator `$` ist Funktionsanwendung mit sehr niedriger Priorität. Es gilt `f $ x = f x`. Dadurch kann man Klammern sparen: `sqrt $ 3 + 4` bedeutet `sqrt (3 + 4)`. Alles rechts von `$` wird als Argument der Funktion links aufgefasst."
+  },
+  "doc_ti_intro_044": {
+    "question": "Was bedeutet eine Äquivalenzrelation anschaulich, und welche Eigenschaften muss sie erfüllen?",
+    "definition": "Eine Äquivalenzrelation \\(R\\subseteq X\\times X\\) beschreibt, welche Elemente von \\(X\\) bezüglich eines festgelegten Kriteriums als gleichwertig gelten. \\(xRy\\) bedeutet: \\(x\\) und \\(y\\) stimmen hinsichtlich dieses Kriteriums überein; sie müssen deshalb nicht dasselbe Element sein. Beispiel auf Wörtern:\\[xRy\\iff |x|=|y|.\\]So sind \\(ab\\) und \\(ba\\) bezüglich ihrer Länge äquivalent, obwohl sie verschiedene Wörter sind. Eine Äquivalenzrelation ist reflexiv, symmetrisch und transitiv: Jedes Element ist zu sich selbst äquivalent; Äquivalenz gilt in beiden Richtungen; und aus \\(xRy\\) und \\(yRz\\) folgt \\(xRz\\). Sie zerlegt die Grundmenge in disjunkte Äquivalenzklassen: In jeder Klasse liegen genau die bezüglich des Kriteriums gleichwertigen Elemente."
+  },
+  "doc_ti_vl_20261022_014": {
+    "question": "Was bedeutet Äquivalenz bei formalen Sprachen und endlichen Automaten allgemein?",
+    "definition": "Äquivalenz bedeutet Gleichwertigkeit bezüglich eines festgelegten Kriteriums. Bei formalen Sprachen vergleicht man die enthaltenen Wörter: Zwei Sprachen über demselben Alphabet sind genau dann gleich, wenn sie dieselben Wörter enthalten:\\[L_1=L_2\\iff\\forall w\\in\\Sigma^*:\\ (w\\in L_1\\iff w\\in L_2).\\]Zwei endliche Automaten sind äquivalent, wenn sie dieselbe Sprache akzeptieren:\\[M_1\\sim M_2\\iff L(M_1)=L(M_2).\\]Sie entscheiden also für jedes Eingabewort gleich über Akzeptanz. Ihre Zustände und Übergänge dürfen verschieden sein. Ebenso sind zwei Sprachbeschreibungen, etwa reguläre Ausdrücke, äquivalent, wenn sie dieselbe Sprache beschreiben. Bloß gleich viele Wörter zu enthalten genügt für Sprachgleichheit nicht."
+  },
+  "doc_ti_countability_001": {
+    "question": "Was bedeutet höchstens abzählbar, abzählbar unendlich und überabzählbar? Nennen Sie Beispiele.",
+    "definition": "Eine Menge \\(A\\) ist **höchstens abzählbar**, wenn eine Injektion \\(A\\to\\mathbb N_0\\) existiert; dazu gehören endliche und abzählbar unendliche Mengen.\nSie ist **abzählbar unendlich**, wenn eine Bijektion \\(\\mathbb N_0\\to A\\) existiert: Ihre Elemente lassen sich ohne Auslassungen oder Wiederholungen durchnummerieren. Die Mächtigkeit ist \\(\\aleph_0\\). Beispiele sind \\(\\mathbb N\\), \\(\\mathbb Z\\) und \\(\\mathbb Q\\).\n**Überabzählbar** bedeutet: Es gibt keine Injektion \\(A\\to\\mathbb N_0\\); die Menge ist weder endlich noch abzählbar unendlich. Beispiel: \\(\\mathbb R\\) mit Mächtigkeit \\(2^{\\aleph_0}\\). Nicht jede überabzählbare Menge hat diese Mächtigkeit: \\(\\mathcal P(\\mathbb R)\\) ist nach dem Satz von Cantor noch mächtiger.\nAchtung: „abzählbar“ wird je nach Konvention für höchstens abzählbar oder für abzählbar unendlich verwendet; die genaue Aussage sollte ausdrücklich genannt werden."
+  }
+};
+
+// Exact previously shipped text; migrate only untouched fields.
+const MATH_CARD_PREVIOUS_TEXT = {
+  "doc_ti_intro_067": {
+    "definition": [
+      "\\[L^+=L\\cdot L^*=\\bigcup_{n=1}^{\\infty}L^n.\\]\nDie positive Hülle enthält Verkettungen von mindestens einem Wort aus \\(L\\). Es gilt \\(\\lambda\\in L^+\\iff\\lambda\\in L\\). Daher ist \\(L^+=L^*\\setminus\\{\\lambda\\}\\) nur dann richtig, wenn \\(\\lambda\\notin L\\)."
+    ],
+    "question": [
+      "Was ist \\(L^+\\) und wann enthält es \\(\\lambda\\)?"
+    ]
   }
 };

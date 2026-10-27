@@ -55,7 +55,7 @@ for(const card of run('defaults.filter(c=>c.subject==="Theoretische Informatik")
 const headingCalls=[];
 const cardList={innerHTML:'',querySelectorAll(selector){
   assert.equal(selector,'.lib-item h3');
-  return [...this.innerHTML.matchAll(/<h3>([\s\S]*?)<\/h3>/g)].map(m=>({innerHTML:m[1]}));
+  return [...this.innerHTML.matchAll(/<div><h3>([\s\S]*?)<\/h3>/g)].map(m=>({innerHTML:m[1]}));
 }};
 context.document={
   getElementById:id=>id==='cardList'?cardList:{value:'',classList:{remove(){}}},
@@ -74,3 +74,12 @@ headingCalls.length=0;
 run('renderLibrary()');
 assert.equal(headingCalls.length,1,'Titles must be typeset again after filtering or rebuilding the list');
 console.log('Passed: formula migration, preserved edits and progress, safe markup and library title rendering.');
+
+assert(run(`(()=>{
+  const id='doc_ti_intro_067',old=MATH_CARD_PREVIOUS_TEXT[id];
+  const card={id,question:old.question[0],definition:old.definition[0],reviews:9};
+  sanitizeCard(card);
+  const edited={id,definition:'My own answer',question:'My question'};sanitizeCard(edited);
+  return card.definition===MATH_CARD_TEXT[id].definition&&card.question===MATH_CARD_TEXT[id].question
+    &&card.reviews===9&&edited.definition==='My own answer'&&edited.question==='My question';
+})()`));

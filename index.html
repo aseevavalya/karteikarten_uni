@@ -498,14 +498,19 @@ const DAY = 86400000;
 const now = () => Date.now();
 
 function sanitizeCard(c){
+  const dbMetadata=DATABASE_CARD_METADATA[c.id];
+  if(dbMetadata){
+    if(c.topic==="Einführende Begriffe")c.topic=dbMetadata.topic;
+    if(typeof c.note==="string"&&/^DB-Wissenskatalog\.pdf • Kapitel 1: Einführende Begriffe • S\. [123]$/.test(c.note))c.note=dbMetadata.note;
+  }
   const previous=LEGACY_MATH_TEXT.get(c.id),updated=MATH_CARD_TEXT[c.id];
-  if(previous&&updated){for(const field of ["term","question","definition"]){if(updated[field]!==undefined&&c[field]===previous[field])c[field]=updated[field]}}
+  if(previous&&updated){for(const field of ["term","question","definition"]){if(updated[field]!==undefined&&(c[field]===previous[field]||(MATH_CARD_PREVIOUS_TEXT[c.id]?.[field]||[]).includes(c[field])))c[field]=updated[field]}}
   for(const field of ["term","question","definition","note","topic"]){if(typeof c[field]==="string")c[field]=c[field].replace(/\u0088/g,"•")}
   return c;
 }
 function slugId(c,i){ return "src_"+i+"_"+c.term.toLowerCase().replace(/[^a-z0-9а-яёäöüß]+/gi,"_").slice(0,36); }
 const LEGACY_MATH_TEXT = new Map([...SOURCE_CARDS,...DATABASE_INTRO_CARDS,...TI_REVIEW_CARDS].filter(c=>MATH_CARD_TEXT[c.id]).map(c=>[c.id,{...c}]));
-const defaults = [...SOURCE_CARDS,...DATABASE_INTRO_CARDS,...TI_REVIEW_CARDS].map((c,i)=>({
+const defaults = [...SOURCE_CARDS,...DATABASE_INTRO_CARDS,...TI_REVIEW_CARDS].filter(c=>!c.retired).map((c,i)=>({
   ...sanitizeCard(c), id:c.id||slugId(c,i), custom:false,
   reviews:0, correct:0, lapses:0, streak:0, intervalDays:0, dueAt:0, lastReviewed:0
 }));
@@ -535,9 +540,74 @@ let cloudSaveTimer=null;
 let cloudWriteInProgress=false;
 
 function semesterDefaults(semester){return defaults.filter(c=>semesterSubjects[semester].includes(c.subject));}
-function emptyState(semester="4"){ return {cards:semesterDefaults(semester).map(c=>({...c})),subjects:[...semesterSubjects[semester]],sessions:{},deletedIds:[],history:[],topicBlocks:[],libraryOrder:{topics:{},cards:{}}}; }
+function seedLectureBlocks(semester,cards,blocks=[],seededIds=[]){
+  const seeded=new Set(seededIds),result=blocks.map(block=>({...block,topics:[...block.topics]}));
+  if(semester!=="5")return {topicBlocks:result,seededTopicBlockIds:[...seeded]};
+  // Preserve an existing user block that already held the old introductory topic.
+  const dbSubject=cards.find(c=>c.id==="doc_db_intro_001")?.subject||"Datenbanken";
+  const introTopics=[...new Set(Object.values(DATABASE_CARD_METADATA).map(item=>item.topic))];
+  result.filter(block=>block.subject===dbSubject&&block.topics.includes("Einführende Begriffe")).forEach(block=>{
+    block.topics=[...new Set(block.topics.flatMap(topic=>topic==="Einführende Begriffe"?introTopics:[topic]))];
+  });
+  for(const template of [...DATABASE_TOPIC_BLOCKS,...TI_TOPIC_BLOCKS]){
+    if(result.some(block=>block.id===template.id)){seeded.add(template.id);continue}
+    if(seeded.has(template.id))continue;
+    const subject=template.subject==="Datenbanken"?dbSubject:(cards.find(card=>TI_WEEKLY_CARD_TOPICS.has(card.id))?.subject||template.subject);
+    const assigned=new Set(result.filter(block=>block.subject===subject).flatMap(block=>block.topics));
+    const topics=template.topics.filter(topic=>!assigned.has(topic)&&cards.some(c=>c.subject===subject&&c.topic===topic));
+    if(topics.length)result.push({...template,subject,topics});
+    seeded.add(template.id);
+  }
+  return {topicBlocks:result,seededTopicBlockIds:[...seeded]};
+}
+function orderTIWeeklyTopics(topics){
+  const chronology=TI_LECTURE_WEEKS.flatMap(week=>[...(TI_TOPIC_BLOCKS.find(block=>block.id===week.id)?.topics||[]),week.topic]);
+  return [...chronology.filter(topic=>topics.includes(topic)),...topics.filter(topic=>!chronology.includes(topic))];
+}
+function migrateTIWeeklyCategories(saved){
+  if(saved.tiWeeklyCategoryVersion===TI_WEEKLY_CATEGORY_VERSION)return;
+  for(const card of [...saved.cards,...(Array.isArray(saved.history)?saved.history:[])]){
+    const topic=TI_WEEKLY_CARD_TOPICS.get(card.id);
+    if(topic)card.topic=topic;
+  }
+  // Remove obsolete assignments before seeding the four weekly blocks.
+  // Keep unrelated memberships and the two repetition categories intact.
+  const previousTopics=new Set([...TI_WEEKLY_CARD_TOPICS.keys()].map(id=>TI_PRE_WEEK_TOPICS.get(id)));
+  const weeklyTopics=new Set(TI_LECTURE_WEEKS.map(week=>week.topic));
+  const tiSubjects=new Set(saved.cards.filter(card=>TI_WEEKLY_CARD_TOPICS.has(card.id)).map(card=>card.subject));
+  if(Array.isArray(saved.topicBlocks))saved.topicBlocks=saved.topicBlocks.flatMap(block=>{
+    if(!tiSubjects.has(block?.subject)||!Array.isArray(block.topics)||TI_TOPIC_BLOCKS.some(template=>template.id===block.id))return [block];
+    const topics=block.topics.filter(topic=>!previousTopics.has(topic)&&!weeklyTopics.has(topic));
+    return topics.length===block.topics.length?[block]:topics.length?[{...block,topics}]:[];
+  });
+  saved.tiWeeklyCategoryVersion=TI_WEEKLY_CATEGORY_VERSION;
+}
+function seedLectureOrder(cards,order={}){
+  const topics={...(order.topics||{})},cardOrder={...(order.cards||{})};
+  const dbCards=cards.filter(card=>card.id.startsWith("doc_db_"));
+  for(const subject of new Set(dbCards.map(card=>card.subject))){
+    const subjectCards=dbCards.filter(card=>card.subject===subject);
+    const presentTopics=new Set(subjectCards.map(card=>card.topic));
+    const lectureTopics=DATABASE_TOPIC_BLOCKS.flatMap(block=>block.topics).filter(topic=>presentTopics.has(topic));
+    topics[subject]=[...new Set([...(topics[subject]||[]),...lectureTopics])];
+    for(const topic of presentTopics){
+      const key=subject+"|||"+topic;
+      cardOrder[key]=[...new Set([...(cardOrder[key]||[]),...subjectCards.filter(card=>card.topic===topic).map(card=>card.id)])];
+    }
+  }
+  for(const subject of new Set(cards.filter(card=>TI_WEEKLY_CARD_TOPICS.has(card.id)).map(card=>card.subject))){
+    const presentTopics=new Set(cards.filter(card=>card.subject===subject).map(card=>card.topic));
+    topics[subject]=orderTIWeeklyTopics([...new Set([...(topics[subject]||[]),...presentTopics])].filter(topic=>presentTopics.has(topic)));
+  }
+  return {topics,cards:cardOrder};
+}
+function emptyState(semester="4"){
+  const cards=semesterDefaults(semester).map(c=>({...c}));
+  return {tiWeeklyCategoryVersion:TI_WEEKLY_CATEGORY_VERSION,cards,subjects:[...semesterSubjects[semester]],sessions:{},deletedIds:[],history:[],...seedLectureBlocks(semester,cards),libraryOrder:seedLectureOrder(cards)};
+}
 function normalizeState(saved,semester="4"){
   if(!saved || !Array.isArray(saved.cards)) return emptyState(semester);
+  migrateTIWeeklyCategories(saved);
   (saved.cards||[]).forEach(sanitizeCard);
   (saved.history||[]).forEach(sanitizeCard);
   const deletedIds=Array.isArray(saved.deletedIds)?saved.deletedIds:[];
@@ -546,7 +616,7 @@ function normalizeState(saved,semester="4"){
   const custom=(saved.cards||[]).filter(c=>c.custom && !merged.some(m=>m.id===c.id));
   const order=saved.libraryOrder&&typeof saved.libraryOrder==="object"?saved.libraryOrder:{};
   const topicBlocks=Array.isArray(saved.topicBlocks)?saved.topicBlocks.filter(block=>block&&block.subject&&block.name).map(block=>({...block,topics:Array.isArray(block.topics)?block.topics:[]})):[];
-  return {subjects:[...new Set([...(Array.isArray(saved.subjects)?saved.subjects:semesterSubjects[semester]),...merged.map(c=>c.subject),...custom.map(c=>c.subject)])],cards:[...merged,...custom],sessions:saved.sessions||{},deletedIds,history:Array.isArray(saved.history)?saved.history:[],topicBlocks,libraryOrder:{topics:order.topics||{},cards:order.cards||{}}};
+  return {tiWeeklyCategoryVersion:TI_WEEKLY_CATEGORY_VERSION,subjects:[...new Set([...(Array.isArray(saved.subjects)?saved.subjects:semesterSubjects[semester]),...merged.map(c=>c.subject),...custom.map(c=>c.subject)])],cards:[...merged,...custom],sessions:saved.sessions||{},deletedIds,history:Array.isArray(saved.history)?saved.history:[],...seedLectureBlocks(semester,[...merged,...custom],topicBlocks,Array.isArray(saved.seededTopicBlockIds)?saved.seededTopicBlockIds:[]),libraryOrder:seedLectureOrder([...merged,...custom],order)};
 }
 function loadState(){
   try{
@@ -1076,8 +1146,9 @@ function renderLibrary(resetLimit=false){
   const groups=[];
   list.forEach(card=>{const key=card.subject+"|||"+(card.topic||"");let group=groups.at(-1);if(!group||group.key!==key){group={key,subject:card.subject,topic:card.topic||"",cards:[]};groups.push(group)}group.cards.push(card)});
   const forceExpanded=!!q||scopes.length>0;
-  const topicHtml=group=>`<section class="topic-group ${(forceExpanded||expandedLibraryTopics.has(group.key))?"expanded":""}" data-topic-key="${escapeHtml(group.key)}" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}">
-    <div class="topic-heading-row" title="Klicken, um Karten anzuzeigen; zum Verschieben gedrückt halten"><h3 class="topic-heading">${escapeHtml(group.topic||"Ohne Thema")}</h3><button class="rename-topic neo" type="button" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}" title="Thema umbenennen" aria-label="Thema umbenennen ${escapeHtml(group.topic||"Ohne Thema")}">✎</button></div>
+  const topicLabel=(group,block)=>{const prefix=block?block.name.split(" | ")[0]+": ":"";return prefix&&group.topic.startsWith(prefix)?group.topic.slice(prefix.length):(group.topic||"Ohne Thema")};
+  const topicHtml=(group,block=null)=>`<section class="topic-group ${(forceExpanded||expandedLibraryTopics.has(group.key))?"expanded":""}" data-topic-key="${escapeHtml(group.key)}" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}">
+    <div class="topic-heading-row" title="Klicken, um Karten anzuzeigen; zum Verschieben gedrückt halten"><h3 class="topic-heading">${escapeHtml(topicLabel(group,block))}</h3><button class="rename-topic neo" type="button" data-subject="${escapeHtml(group.subject)}" data-topic="${escapeHtml(group.topic)}" title="Thema umbenennen" aria-label="Thema umbenennen ${escapeHtml(group.topic||"Ohne Thema")}">✎</button></div>
     ${group.cards.map(c=>{const [txt,cls]=statusOf(c);return `<div class="lib-item neo-inset" data-id="${escapeHtml(c.id)}" role="button" tabindex="0" aria-expanded="false" title="Karte gedrückt halten, um die Reihenfolge zu ändern">
       <div><h3>${formatCardText(c.term)}</h3><p>${escapeHtml(c.subject)} · ${escapeHtml(c.topic||"Ohne Thema")} · ${c.reviews} Wiederholungen · ${c.correct} richtig</p></div>
       <div style="display:flex;gap:8px;align-items:center">
@@ -1094,9 +1165,9 @@ function renderLibrary(resetLimit=false){
     subjectBlocks.forEach(block=>{
       const blockGroups=subjectGroups.filter(group=>block.topics.includes(group.topic||"Ohne Thema"));
       blockGroups.forEach(group=>groupedTopics.add(group.topic||"Ohne Thema"));
-      content+=`<section class="topic-block ${(forceExpanded||expandedTopicBlocks.has(block.id))?"expanded":""}" data-block-id="${escapeHtml(block.id)}"><div class="topic-block-head" role="button" tabindex="0"><div><div class="topic-block-subject">${blockGroups.length} Themen</div><h3>${escapeHtml(block.name)}</h3></div><button class="topic-block-edit neo" type="button" data-block-id="${escapeHtml(block.id)}">Bearbeiten</button></div>${blockGroups.length?blockGroups.map(topicHtml).join(""):'<div class="empty topic-block-empty">In diesem Block sind noch keine Themen verfügbar</div>'}</section>`;
+      content+=`<section class="topic-block ${(forceExpanded||expandedTopicBlocks.has(block.id))?"expanded":""}" data-block-id="${escapeHtml(block.id)}"><div class="topic-block-head" role="button" tabindex="0"><div><div class="topic-block-subject">${blockGroups.length} Themen</div><h3>${escapeHtml(block.name)}</h3></div><button class="topic-block-edit neo" type="button" data-block-id="${escapeHtml(block.id)}">Bearbeiten</button></div>${blockGroups.length?blockGroups.map(group=>topicHtml(group,block)).join(""):'<div class="empty topic-block-empty">In diesem Block sind noch keine Themen verfügbar</div>'}</section>`;
     });
-    content+=subjectGroups.filter(group=>!groupedTopics.has(group.topic||"Ohne Thema")).map(topicHtml).join("");
+    content+=subjectGroups.filter(group=>!groupedTopics.has(group.topic||"Ohne Thema")).map(group=>topicHtml(group)).join("");
     libraryHtml+=`<section class="subject-group" data-subject="${escapeHtml(subject)}"><h2 class="subject-group-title">${escapeHtml(subject)}</h2>${content}</section>`;
   });
   el.innerHTML=libraryHtml;
@@ -1123,7 +1194,7 @@ function editTopicBlock(blockId=null){
   const existing=blockId?(state.topicBlocks||[]).find(block=>block.id===blockId):null;
   const subject=existing?.subject||document.getElementById("librarySubject").value;
   if(!subject){alert("Wähle zuerst ein Fach im Bibliotheksfilter aus.");return}
-  const topics=[...new Set(state.cards.filter(card=>card.subject===subject).map(card=>card.topic||"Ohne Thema"))].sort((a,b)=>a.localeCompare(b,"de"));
+  const topics=orderTIWeeklyTopics([...new Set(state.cards.filter(card=>card.subject===subject).map(card=>card.topic||"Ohne Thema"))].sort((a,b)=>a.localeCompare(b,"de")));
   const occupied=new Set((state.topicBlocks||[]).filter(block=>block.subject===subject&&block.id!==blockId).flatMap(block=>block.topics));
   const available=topics.filter(topic=>!occupied.has(topic)||(existing?.topics||[]).includes(topic));
   const overlay=document.createElement("div");overlay.className="history-modal show";
@@ -1137,7 +1208,7 @@ function fillTopicSelect(select,subjects){
   const previous=new Set(selectedValues(select));
   const usedSubjects=subjects.length?subjects:[...new Set(state.cards.map(card=>card.subject))];let html='<option value="">Alle Themen und Themenblöcke</option>';
   for(const subject of usedSubjects){
-    const topics=[...new Set(state.cards.filter(card=>card.subject===subject).map(card=>card.topic||"Ohne Thema"))];
+    const topics=orderTIWeeklyTopics([...new Set(state.cards.filter(card=>card.subject===subject).map(card=>card.topic||"Ohne Thema"))]);
     const blocks=(state.topicBlocks||[]).filter(block=>block.subject===subject);
     html+=`<optgroup label="${escapeHtml(subject)}">${blocks.map(block=>`<option value="${escapeHtml(subject+"|||#block#"+block.id)}">▣ ${escapeHtml(block.name)} (gesamter Block)</option>`).join("")}${topics.map(topic=>`<option value="${escapeHtml(subject+"|||"+topic)}">${escapeHtml(topic)}</option>`).join("")}</optgroup>`;
   }
@@ -1150,7 +1221,7 @@ function fillReviewTopicSelect(){
   const select=document.getElementById("reviewTopic"),previous=new Set(selectedValues(select)),subjects=selectedSubjects();
   let html='<option value="">Alle ausgewählten Fächer und Themen</option>';
   for(const subject of subjects){
-    const topics=[...new Set(state.cards.filter(c=>c.subject===subject).map(c=>c.topic||"Ohne Thema"))];
+    const topics=orderTIWeeklyTopics([...new Set(state.cards.filter(c=>c.subject===subject).map(c=>c.topic||"Ohne Thema"))]);
     const blocks=(state.topicBlocks||[]).filter(block=>block.subject===subject);
     html+=`<optgroup label="${escapeHtml(subject)}">${blocks.map(block=>`<option value="${escapeHtml(subject+"|||#block#"+block.id)}">▣ ${escapeHtml(block.name)} (gesamter Block)</option>`).join("")}${topics.map(topic=>`<option value="${escapeHtml(subject+"|||"+topic)}">${escapeHtml(topic)}</option>`).join("")}</optgroup>`;
   }
@@ -1166,8 +1237,8 @@ function updateTopicFilters(){
   const topicOptions=document.getElementById("existingTopicOptions");
   if(topicOptions){
     const editorSubject=document.getElementById("newSubject")?.value;
-    const topics=[...new Set(state.cards.filter(card=>!editorSubject||card.subject===editorSubject).map(card=>(card.topic||"").trim()).filter(Boolean))]
-      .sort((a,b)=>a.localeCompare(b,"de"));
+    const topics=orderTIWeeklyTopics([...new Set(state.cards.filter(card=>!editorSubject||card.subject===editorSubject).map(card=>(card.topic||"").trim()).filter(Boolean))]
+      .sort((a,b)=>a.localeCompare(b,"de")));
     topicOptions.innerHTML=topics.map(topic=>`<option value="${escapeHtml(topic)}"></option>`).join("");
   }
 }
