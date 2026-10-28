@@ -23,6 +23,7 @@ window.MathJax={
   --accent:#788d82; --accent2:#879c91; --danger:#ae756b; --warn:#aa895f;
   --sage:#c3cec7; --sage-deep:#aabbb1; --terracotta:#d8bcb5; --mustard:#d8c4a1; --slate:#29313a;
   --radius:24px;
+  --font-control:14px;--font-label:12px;--font-meta:11px;
   --raised-edge:inset 3px 3px 6px rgba(255,255,255,.7),inset -3px -3px 6px rgba(166,172,168,.17);
   --select-chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%237b8083' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 4.5 3 3 3-3'/%3E%3C/svg%3E");
 }
@@ -160,8 +161,9 @@ select.neo-inset{appearance:none;-webkit-appearance:none;padding-right:36px;back
 .multi-select-toggle::after{content:"";position:absolute;right:14px;top:50%;width:12px;height:12px;transform:translateY(-50%);background:var(--select-chevron) center/12px 12px no-repeat}
 .multi-select.open .multi-select-toggle::after{transform:translateY(-50%) rotate(180deg)}
 .multi-select-menu{display:none;position:absolute;z-index:50;left:0;right:0;top:calc(100% + 7px);max-height:280px;overflow:auto;padding:9px;border-radius:16px;background:var(--panel);box-shadow:10px 10px 24px rgba(154,161,157,.55),-7px -7px 18px #fff;border:1px solid rgba(255,255,255,.9)}
-.multi-select.open .multi-select-menu{display:grid;gap:3px;align-content:start;grid-auto-rows:max-content;overscroll-behavior:contain}
+.multi-select.open .multi-select-menu,.multi-select-menu.topic-menu-open{display:grid;gap:3px;align-content:start;grid-auto-rows:max-content;overscroll-behavior:contain}
 .multi-select-option{display:flex!important;align-items:flex-start;gap:9px;margin:0!important;padding:8px 9px;border-radius:11px;cursor:pointer;font-size:12px!important;line-height:1.3}
+.multi-select-option span{min-width:0;overflow-wrap:anywhere}
 .multi-select-option:hover{background:rgba(120,141,130,.09)}
 .multi-select-option input{width:auto!important;margin:1px 0 0;flex:none;accent-color:var(--accent2)}
 .multi-select-group{padding:8px 9px 3px;color:var(--accent);font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.04em}
@@ -292,7 +294,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
   .mobile-drawer .stats{display:block;padding:14px}.mobile-drawer .stats h2{margin:0 0 10px;font-size:15px}.mobile-drawer .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.mobile-drawer .stat{padding:9px 8px}.mobile-drawer .stat b{font-size:16px}.mobile-drawer .stat span{display:block;font-size:9px;line-height:1.2;overflow-wrap:anywhere}.mobile-drawer .progress-wrap{margin-top:10px}.mobile-drawer .progress-label{font-size:10px}
   .mobile-drawer .filters,.mobile-drawer .daily{padding:0}.mobile-drawer .filters h2,.mobile-drawer .daily h2{position:relative;margin:0!important;padding:15px 40px 15px 15px;font-size:14px!important;cursor:pointer}.mobile-drawer .filters h2::after,.mobile-drawer .daily h2::after{content:"›";position:absolute;right:17px;top:50%;font-size:24px;line-height:1;transform:translateY(-50%) rotate(90deg);transition:transform .2s}.mobile-drawer .filters.mobile-expanded h2::after,.mobile-drawer .daily.mobile-expanded h2::after{transform:translateY(-50%) rotate(-90deg)}.mobile-drawer .filters:not(.mobile-expanded)>:not(h2),.mobile-drawer .daily:not(.mobile-expanded)>:not(h2){display:none}.mobile-drawer .filters.mobile-expanded,.mobile-drawer .daily.mobile-expanded{padding-bottom:14px}.mobile-drawer .filters.mobile-expanded>:not(h2),.mobile-drawer .daily.mobile-expanded>:not(h2){margin-left:14px;margin-right:14px}.mobile-drawer .daily-card{overflow:hidden}.mobile-drawer .daily-definition{display:none}.mobile-drawer .daily-card.expanded .daily-definition{display:block}
   .mobile-drawer{font-size:12px}.mobile-drawer .tabs .tab{font-size:10px}.mobile-drawer .stats h2,.mobile-drawer .filters h2,.mobile-drawer .daily h2{font-size:12px!important;font-weight:750}.mobile-drawer .filters h2:focus-visible,.mobile-drawer .daily h2:focus-visible{outline:2px solid rgba(120,141,130,.35);outline-offset:-3px;border-radius:18px}.mobile-drawer .stats .stat b{font-size:14px}.mobile-drawer .stats .stat span,.mobile-drawer .progress-label{font-size:9px}.mobile-drawer .filters.mobile-expanded>:not(h2),.mobile-drawer .daily.mobile-expanded>:not(h2){width:calc(100% - 28px);max-width:calc(100% - 28px)}.mobile-drawer .subject-checks{gap:7px}.mobile-drawer .check{font-size:11px}.mobile-drawer .filters label{font-size:10px;margin-top:9px}.mobile-drawer select{width:100%;padding:10px 11px;font-size:11px}.mobile-drawer .footer-actions{margin-top:10px}.mobile-drawer .small-btn{padding:9px 11px;font-size:11px}.mobile-drawer .daily-intro,.mobile-drawer .daily-card span,.mobile-drawer .daily-definition{font-size:10px}.mobile-drawer .daily-card b{font-size:11px}.mobile-drawer .history-launch{padding:14px 15px}.mobile-drawer .history-launch b{font-size:12px;margin-bottom:3px}.mobile-drawer .history-launch span{font-size:10px}
-  .mobile-drawer .filters.mobile-expanded{overflow:visible}.mobile-drawer .multi-select-toggle{min-height:50px;padding:14px 42px 14px 15px;font-size:14px}.mobile-drawer .multi-select-menu{position:fixed;z-index:70;top:max(82px,env(safe-area-inset-top));right:12px;bottom:max(14px,env(safe-area-inset-bottom));left:12px;max-height:none;padding:13px 12px 10px;border-radius:22px;overscroll-behavior:contain}.mobile-drawer .multi-select.open .multi-select-menu{gap:5px}.mobile-drawer .multi-select-option{padding:12px 10px;font-size:14px!important;line-height:1.4;gap:11px}.mobile-drawer .multi-select-option input{width:19px!important;height:19px;margin-top:0}.mobile-drawer .multi-select-group{padding:12px 10px 4px;font-size:11px}.mobile-drawer .multi-select-done{display:block;position:sticky;bottom:0;width:100%;margin-top:8px;padding:13px;border:0;border-radius:15px;background:var(--sage);color:#46584f;font-weight:850;box-shadow:0 -8px 16px var(--panel)}
+  .mobile-drawer .filters.mobile-expanded{overflow:visible}.mobile-drawer .multi-select-toggle{min-height:50px;padding:14px 42px 14px 15px;font-size:14px}.multi-select-menu.topic-menu-mobile{position:fixed;z-index:70;top:max(82px,env(safe-area-inset-top));right:12px;bottom:max(14px,env(safe-area-inset-bottom));left:12px;max-height:none;padding:13px 12px 10px;border-radius:22px;overscroll-behavior:contain}.multi-select-menu.topic-menu-mobile{gap:5px}.mobile-drawer .multi-select-option,.topic-menu-mobile .multi-select-option{padding:12px 10px;font-size:14px!important;line-height:1.4;gap:11px}.mobile-drawer .multi-select-option input,.topic-menu-mobile .multi-select-option input{width:19px!important;height:19px;margin-top:0}.mobile-drawer .multi-select-group,.topic-menu-mobile .multi-select-group{padding:12px 10px 4px;font-size:11px}.mobile-drawer .multi-select-done,.topic-menu-mobile .multi-select-done{display:block;position:sticky;bottom:0;width:100%;margin-top:8px;padding:13px;border:0;border-radius:15px;background:var(--sage);color:#46584f;font-weight:850;box-shadow:0 -8px 16px var(--panel)}
   /* Center within the space above the fixed goal; tall answers grow the page. */
   body.review-active .shell{max-width:736px;min-height:100svh;display:flex;flex-direction:column}
   body.review-active #reviewView.active{display:flex;flex:1;flex-direction:column}
@@ -341,9 +343,27 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
   .lib-item p{font-size:12px}
   .lib-detail,.history-detail{font-size:13px;line-height:1.5}
   .library h2,.editor h2{font-size:16px}
-  .mobile-drawer .multi-select-option{font-size:13px!important;line-height:1.35}
+  .mobile-drawer .multi-select-option,.topic-menu-mobile .multi-select-option{font-size:13px!important;line-height:1.35}
   .multi-select-toggle{font-size:13px}
   input,select,textarea{font-size:16px}
+}
+/* Shared type sizes for controls with the same role. */
+@media(max-width:620px){:root{--font-control:13px;--font-label:11px;--font-meta:10px}}
+@media(min-width:1271px){:root{--font-control:13px;--font-label:11px;--font-meta:10px}}
+#reviewView .filters select,#reviewView .filters .multi-select-toggle,
+.mobile-drawer .filters select,.mobile-drawer .filters .multi-select-toggle{
+  font-size:var(--font-control);line-height:1.4;min-height:44px;padding:11px 36px 11px 14px;
+}
+#reviewView .filters>label,.mobile-drawer .filters>label{font-size:var(--font-label)}
+#reviewView .filters .check,.mobile-drawer .filters .check{font-size:var(--font-control);line-height:1.4}
+.multi-select-menu .multi-select-option,.topic-menu-mobile .multi-select-option{font-size:var(--font-control)!important;line-height:1.4}
+.multi-select-branch-toggle{font-size:inherit}
+.multi-select-branch-toggle small,.multi-select-group,.topic-menu-mobile .multi-select-group{font-size:var(--font-meta)}
+.lib-toolbar input,.lib-toolbar select,.lib-toolbar .multi-select-toggle{font-size:var(--font-control);line-height:1.4;min-height:44px}
+@media(max-width:1270px){
+  /* Match the search field without triggering phone zoom when it receives focus. */
+  .lib-toolbar{--font-control:16px}
+  .mobile-drawer .filters h2,.mobile-drawer .daily h2,.mobile-drawer .stats h2{font-size:var(--font-control)!important}
 }
 /* Keep the reveal action full width on phones and centered on larger screens. */
 @media(min-width:621px){.main-card .reveal{justify-self:center;width:min(100%,320px)}}
@@ -830,11 +850,25 @@ function setTopicSelection(options,tree,value,checked){
   const all=options.find(item=>!item.value);
   if(all)all.selected=!options.some(item=>item.value&&item.selected);
 }
+function closeTopicMenu(root){
+  const menu=root.topicMenu||root.querySelector(".multi-select-menu");
+  root.classList.remove("open");root.querySelector(".multi-select-toggle").setAttribute("aria-expanded","false");
+  if(menu){menu.classList.remove("topic-menu-open","topic-menu-mobile");root.appendChild(menu)}
+}
+function openTopicMenu(root){
+  const menu=root.topicMenu||root.querySelector(".multi-select-menu");root.topicMenu=menu;
+  menu.classList.add("topic-menu-open");
+  menu.classList.toggle("topic-menu-mobile",!!root.closest(".mobile-drawer")&&window.matchMedia("(max-width:1270px)").matches);
+  menu.onclick=event=>event.stopPropagation();
+  document.body.appendChild(menu);
+  root.classList.add("open");root.querySelector(".multi-select-toggle").setAttribute("aria-expanded","true");
+  positionTopicMenu(root);
+}
 function renderMultiSelect(select){
   const root=document.querySelector(`.multi-select[data-for="${select.id}"]`);
   if(!root)return;
   root.onclick=e=>e.stopPropagation();
-  const button=root.querySelector(".multi-select-toggle"),menu=root.querySelector(".multi-select-menu");
+  const button=root.querySelector(".multi-select-toggle"),menu=root.topicMenu||root.querySelector(".multi-select-menu");
   const scrollTop=menu.scrollTop,options=[...select.options],tree=topicOptionTree(options,state.topicBlocks||[]);
   const expanded=root.topicExpandedBlocks||(root.topicExpandedBlocks=new Set());
   menu.innerHTML="";
@@ -878,7 +912,7 @@ function renderMultiSelect(select){
     }
     group.topics.forEach(option=>leaf(option,menu));
   }
-  const done=document.createElement("button");done.type="button";done.className="multi-select-done";done.textContent="Fertig";done.onclick=()=>{root.classList.remove("open");button.setAttribute("aria-expanded","false")};menu.appendChild(done);
+  const done=document.createElement("button");done.type="button";done.className="multi-select-done";done.textContent="Fertig";done.onclick=()=>{closeTopicMenu(root);button.focus()};menu.appendChild(done);
   const chosen=options.filter(option=>option.value&&option.selected);
   const chosenBlock=chosen.length===1?tree.flatMap(group=>group.blocks).find(block=>block.option===chosen[0]):null;
   button.textContent=chosen.length===0
@@ -887,18 +921,24 @@ function renderMultiSelect(select){
   menu.scrollTop=scrollTop;
   button.onclick=()=>{
     const open=!root.classList.contains("open");
-    document.querySelectorAll(".multi-select.open").forEach(item=>{item.classList.remove("open");item.querySelector(".multi-select-toggle").setAttribute("aria-expanded","false")});
-    root.classList.toggle("open",open);button.setAttribute("aria-expanded",String(open));
-    if(open)positionTopicMenu(root);
+    document.querySelectorAll(".multi-select.open").forEach(closeTopicMenu);
+    if(open)openTopicMenu(root);
   };
 }
 function positionTopicMenu(root){
-  const menu=root.querySelector(".multi-select-menu");
-  // The mobile drawer already presents the menu as a full-height panel.
+  const menu=root.topicMenu||root.querySelector(".multi-select-menu");
+  menu.style.setProperty("--font-control",getComputedStyle(root).getPropertyValue("--font-control"));
+  // The open menu lives outside the animated, scrolling drawer.
   if(root.closest(".mobile-drawer")&&window.matchMedia("(max-width: 1270px)").matches){
-    for(const property of ["position","left","right","top","bottom","width","max-height"])menu.style.removeProperty(property);
+    const viewport=window.visualViewport;
+    const top=viewport?viewport.offsetTop:0,left=viewport?viewport.offsetLeft:0;
+    const width=viewport?viewport.width:window.innerWidth,height=viewport?viewport.height:window.innerHeight;
+    const drawerWidth=Math.min(root.closest(".mobile-drawer").offsetWidth,width);
+    const panelLeft=left+width-drawerWidth+12;
+    Object.assign(menu.style,{position:"fixed",margin:"0",left:panelLeft+"px",right:"auto",top:"calc("+top+"px + max(82px, env(safe-area-inset-top)))",bottom:"auto",width:Math.max(0,drawerWidth-24)+"px",maxWidth:"none",height:"calc("+height+"px - max(82px, env(safe-area-inset-top)) - max(14px, env(safe-area-inset-bottom)))",maxHeight:"none"});
     return;
   }
+  menu.style.height="auto";menu.style.maxWidth="none";menu.style.margin="0";
   const rect=root.querySelector(".multi-select-toggle").getBoundingClientRect();
   const viewport=window.visualViewport;
   const viewportTop=viewport?viewport.offsetTop:0;
@@ -1480,9 +1520,7 @@ document.getElementById("libraryTopic").onchange=()=>renderLibrary(true);
 document.getElementById("topicBlockBtn").onclick=()=>editTopicBlock();
 document.addEventListener("click",e=>{
   if(e.target.closest(".multi-select"))return;
-  document.querySelectorAll(".multi-select.open").forEach(item=>{
-    item.classList.remove("open");item.querySelector(".multi-select-toggle").setAttribute("aria-expanded","false");
-  });
+  document.querySelectorAll(".multi-select.open").forEach(closeTopicMenu);
 });
 document.getElementById("newSubject").onchange=()=>{
   document.getElementById("newTopic").value="";
@@ -1511,7 +1549,7 @@ const movable=[...document.querySelectorAll(".topbar>.tabs,#reviewView .stats,#r
 const homes=new Map(movable.map(node=>{const marker=document.createComment("mobile-home");node.parentNode.insertBefore(marker,node);return [node,marker]}));
 const syncBox=document.querySelector(".topbar>.sync-box"),syncHome=document.createComment("sync-home");
 syncBox.parentNode.insertBefore(syncHome,syncBox);
-function closeDrawer(){document.body.classList.remove("drawer-open");document.getElementById("menuToggle").setAttribute("aria-expanded","false")}
+function closeDrawer(){document.querySelectorAll(".multi-select.open").forEach(closeTopicMenu);document.body.classList.remove("drawer-open");document.getElementById("menuToggle").setAttribute("aria-expanded","false")}
 function arrangeDesktopHistory(){
   if(desktopQuery.matches){
     const left=document.querySelector("#reviewView .left-column"),center=document.querySelector("#reviewView .center-column");
