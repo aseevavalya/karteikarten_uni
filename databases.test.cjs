@@ -5,7 +5,7 @@ const html=fs.readFileSync('index.html','utf8');
 const script=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>{
   const src=m[0].match(/\bsrc="([^"]+)"/);
   return src&&src[1].startsWith('data/')?fs.readFileSync(src[1],'utf8'):m[1];
-}).filter(s=>s.includes('const SOURCE_CARDS')||s.includes('const DATABASE_INTRO_CARDS')||s.includes('const TI_REVIEW_CARDS')||s.includes('const MATH_CARD_TEXT')||s.includes('const STORAGE_KEY')).join('\n');
+}).filter(s=>s.includes('const SOURCE_CARDS')||s.includes('const DATABASE_INTRO_CARDS')||s.includes('const TI_REVIEW_CARDS')||s.includes('const SYSTEM_THEORY_CARDS')||s.includes('const MATH_CARD_TEXT')||s.includes('const STORAGE_KEY')).join('\n');
 const context=vm.createContext({window:{},localStorage:{getItem:()=>null},console});
 vm.runInContext(script.slice(0,script.indexOf('function safeLocalSave')),context);
 const run=s=>vm.runInContext(s,context);

@@ -491,6 +491,7 @@ kbd{padding:3px 7px;border-radius:8px;font-size:12px}
 <script src="data/semester-4.js"></script>
 <script src="data/databases.js"></script>
 <script src="data/theoretical-informatics.js"></script>
+<script src="data/system-theory.js"></script>
 <script src="data/math-card-text.js"></script>
 <script>
 const STORAGE_KEY = "definitionen_ss2026_v3";
@@ -510,7 +511,7 @@ function sanitizeCard(c){
 }
 function slugId(c,i){ return "src_"+i+"_"+c.term.toLowerCase().replace(/[^a-z0-9а-яёäöüß]+/gi,"_").slice(0,36); }
 const LEGACY_MATH_TEXT = new Map([...SOURCE_CARDS,...DATABASE_INTRO_CARDS,...TI_REVIEW_CARDS].filter(c=>MATH_CARD_TEXT[c.id]).map(c=>[c.id,{...c}]));
-const defaults = [...SOURCE_CARDS,...DATABASE_INTRO_CARDS,...TI_REVIEW_CARDS].filter(c=>!c.retired).map((c,i)=>({
+const defaults = [...SOURCE_CARDS,...DATABASE_INTRO_CARDS,...TI_REVIEW_CARDS,...SYSTEM_THEORY_CARDS].filter(c=>!c.retired).map((c,i)=>({
   ...sanitizeCard(c), id:c.id||slugId(c,i), custom:false,
   reviews:0, correct:0, lapses:0, streak:0, intervalDays:0, dueAt:0, lastReviewed:0
 }));
@@ -524,7 +525,7 @@ const supabaseClient = (window.supabase && window.supabase.createClient)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
   : null;
 
-const semesterSubjects={"4":["Algorithmen & Programmierung","Digitaltechnik","Diskrete Mathematik"],"5":["Theoretische Informatik","Datenbanken","Grundlagen der Rechnernetze"]};
+const semesterSubjects={"4":["Algorithmen & Programmierung","Digitaltechnik","Diskrete Mathematik"],"5":["Theoretische Informatik","Datenbanken","Grundlagen der Rechnernetze","Systemtheorie I"]};
 let activeSemester=localStorage.getItem(STORAGE_KEY+"_semester")==="5"?"5":"4";
 let semesters={};
 let state = loadState();
@@ -549,10 +550,10 @@ function seedLectureBlocks(semester,cards,blocks=[],seededIds=[]){
   result.filter(block=>block.subject===dbSubject&&block.topics.includes("Einführende Begriffe")).forEach(block=>{
     block.topics=[...new Set(block.topics.flatMap(topic=>topic==="Einführende Begriffe"?introTopics:[topic]))];
   });
-  for(const template of [...DATABASE_TOPIC_BLOCKS,...TI_TOPIC_BLOCKS]){
+  for(const template of [...DATABASE_TOPIC_BLOCKS,...TI_TOPIC_BLOCKS,...SYSTEM_THEORY_BLOCKS]){
     if(result.some(block=>block.id===template.id)){seeded.add(template.id);continue}
     if(seeded.has(template.id))continue;
-    const subject=template.subject==="Datenbanken"?dbSubject:(cards.find(card=>TI_WEEKLY_CARD_TOPICS.has(card.id))?.subject||template.subject);
+    const subject=template.subject==="Datenbanken"?dbSubject:template.subject==="Systemtheorie I"?(cards.find(card=>card.id===SYSTEM_THEORY_CARDS[0].id)?.subject||template.subject):(cards.find(card=>TI_WEEKLY_CARD_TOPICS.has(card.id))?.subject||template.subject);
     const assigned=new Set(result.filter(block=>block.subject===subject).flatMap(block=>block.topics));
     const topics=template.topics.filter(topic=>!assigned.has(topic)&&cards.some(c=>c.subject===subject&&c.topic===topic));
     if(topics.length)result.push({...template,subject,topics});
